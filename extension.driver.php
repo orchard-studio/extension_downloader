@@ -33,6 +33,12 @@
 					'page' => '/backend/',
 					'delegate' => 'InitaliseAdminPageHead',
 					'callback' => 'appendAssets'
+					
+				),
+				array(
+					'page'=> '/backend/',
+					'delegate' => 'AdminPagePreGenerate',
+					'callback' => 'listBundles'
 				)
 			);
 		}
@@ -42,10 +48,54 @@
 		 * Appends javascript file referneces into the head, if needed
 		 * @param array $context
 		 */
+		 public function listBundles(array $context){
+			$page = Administration::instance()->getPageCallback();
+			if($page['driver'] == 'systemextensions') {					
+					$body =  $context['oPage'];
+					$wrapper =  $body->Context;
+					$workspace = WORKSPACE . 'bundles';
+					$options = General::listStructure(WORKSPACE. '/bundles');
+					$options = $options['filelist'];
+					$alloptions = [];
+					foreach($options as $keys => $option){
+						$attr = array();
+						$attr[0] = $option;
+						$attr[1] = false;
+						$arrs = explode('/',$option);						
+						$attr[2] = end($arrs);												
+						$alloptions[] = $attr;
+					}
+					
+					$div = new XMLElement('div','Select Your Local XML File');
+					
+					$select = Widget::Select('bundle_extensions',$alloptions,array('id'=>'xml_file','class'=>'extension-bundle'));
+					$div->setAttribute('id','Extension_Downloader');
+					$div->appendChild($select);
+					$wrapper->appendChild($div);
+					/*Export button*/
+					$contents = $body->Contents;
+					
+					$export = new XMLElement('div','Export Extensions as a Bundle');
+					$exportinput = new XMLElement('button','Export',array('id'=>'export_extensions'));
+					$export->appendChild($exportinput);
+					$contents->appendChild($export);
+					//var_dump($contents);
+					//die;
+			}
+		 }
+		 function getChildren() {		   
+		   //foreach($this as $key => $value) {
+				
+			    $children = $this->_children;
+				//array_push($children,$div);
+					
+				return $children;
+		  // }
+		}
 		public function appendAssets(array $context) {
 			// store de callback array localy
 			$c = Administration::instance()->getPageCallback();
-			
+				
 			// extension page
 			if($c['driver'] == 'systemextensions') {
 

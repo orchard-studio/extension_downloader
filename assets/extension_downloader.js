@@ -6,12 +6,12 @@
 	
 	"use strict";
 	
-	var SYM_URL = Symphony.Context.get('root') + '/symphony/';
+	var SYM_URL = Symphony.Context.get('symphony')+ '/' ;
 	var BASE_URL = SYM_URL + 'extension/extension_downloader/';
 	var DOWNLOAD_URL = BASE_URL + 'download/';
 	var SEARCH_URL = BASE_URL + 'search/';
 	var EXTENSIONS_URL = SYM_URL + 'system/extensions/';
-	
+	var EXPORT_URL = BASE_URL + 'export/'
 	var COMPATIBLE_ONLY = true;
 	
 	var win = $(window);
@@ -121,6 +121,7 @@
 		input.attr('disabled', 'disabled').blur();
 		
 		$.post(DOWNLOAD_URL, data, function (data) {
+			//alert(DOWNLOAD_URL);
 			if (data.success) {
 				alert('Download completed! Page will refresh.');
 				document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
@@ -157,27 +158,23 @@
 		e.preventDefault();
 		return false;
 	};
-	
 	var injectUI = function () {
 		context = $('#context');
 		wrap = $('<div />').attr('id', 'extension_downloader');
 		var link = $('<a />')
 				.attr('href', 'http://symphonyextensions.com/')
-				.attr('target', '_blank').text('(Browse available extensions)');
+					.attr('target', '_blank').text('(Browse available extensions)');
 		var title = $('<h3 />').text('Download extension').append(link);
 		input = $('<input />')
 				.attr('type', 'text')
 				.attr('placeholder',
 				'zipball url, github-user/repo, extension_handle or keywords');
 		results = $('<div />').attr('id', 'extension_downloader_results');
-		
 		wrap.append(title).append(input).append(results);
 		context.append(wrap);
-		
 		input.keyup(keyup);
 		results.on('click', 'a', resultClick);
 	};
-	
 	var selectExtension = function () {
 		var qs = queryStringParser.parse();
 		if (!!qs.download_handle) {
@@ -186,12 +183,75 @@
 			win.scrollTop(tr.position().top);
 		}
 	};
-	
 	var init = function () {
 		injectUI();
 		win.load(selectExtension);
+		$('#xml_file').change(function(event){
+			event.preventDefault();
+			var value = $(this).val();
+			check();
+		});
+		selected();
+		$('button#export_extensions').click(function(event){
+			event.preventDefault();	
+			
+				
+			var arr = [];
+			$('.selected').each(function(){			
+				var id = $(this).find('td:nth-child(4)').find('a').attr('href');
+				arr.push(id);
+			});			
+			var text = arr.join(',');
+			$.post(EXPORT_URL,	{a : text},function(data){						
+				if(data.success){
+					
+					
+					
+				}
+			}).fail(function(e){
+				alert('Export failed  - '+ e.status);
+					
+			});
+		});
 	};
 	
+	var selected = function(){
+		$('tr.inactive.extension-can-install').each(function(){
+			$(this).addClass('selected');
+		});
+	}
+	
+	function check(force){
+		wrap.addClass('loading');
+		$('#xml_file').attr('disabled', 'disabled').blur();
+		var DOWNLOAD_URL = BASE_URL + 'download/';
+		var value = $('#xml_file').val();
+		var data = {q: value,force: force};		
+		$.post(DOWNLOAD_URL, data,function (data) {
+				
+				if (data.success) {
+					alert('Download completed! Page will refresh.');
+					if(data.handle == 'undefined'){
+						document.location = EXTENSIONS_URL + '?download_handle=bundle' ;
+					}else{
+						document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
+					}
+				} else if (data.exists) {
+					if (confirm('Extension ' + data.handle + ' already exists. Overwrite?')) {	
+						check(true);
+					}
+				} else {
+					error(data);
+					document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
+				}				
+		}).fail(function(e){				
+			document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
+		}).always(function (e) {
+				wrap.removeClass('loading');
+				$('#xml_file').removeAttr('disabled');
+				$('#xml_file').focus();
+		});
+	};
 	$(init);
 	
 })(jQuery);
