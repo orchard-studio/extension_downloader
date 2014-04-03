@@ -49,45 +49,42 @@
 		 * @param array $context
 		 */
 		 public function listBundles(array $context){
+
 			$page = Administration::instance()->getPageCallback();
+
 			if($page['driver'] == 'systemextensions') {					
 					$body =  $context['oPage'];
 					$wrapper =  $body->Context;
 					
-					/*Input filebrowser button*/
+					/* Input filebrowser button */
 					$div = new XMLElement('div');
 					$div->setAttribute('id','browse_xml');
 					$div->setAttribute('class','options');
-					$input = Widget::Input('','','file',array('id'=>'xml_browser'));
-					$button = new XMLElement('button', 'Import' );
-					$button->setAttribute('id','xml_browse');
-					$div->appendChild($input);
-					$div->appendChild($button);					
+					$importinput = Widget::Input('','','file',array('id'=>'xml_browser'));
+					$importbutton = new XMLElement('button', 'Import' );
+					$importbutton->setAttribute('id','xml_browse');
+					$div->appendChild($importinput);
+					$div->appendChild($importbutton);					
 					$wrapper->appendChild($div);
-					// output js output
-					//$output = new XMLElement('output');
-					//$output->setAttribute('id','list');					
-					//$div->appendChild($output);
-					//$wrapper->appendChild($div);
-					/*Export button*/
-					//$contents = $body->Contents;					
-					$export = new XMLElement('div','Import/Export Extensions as a Bundle');
-					$export->setAttribute('id','export_xml');
-					$export->setAttribute('class','options');
+					
+					/* Export Bundle of Extensions as XML */
+					$exportbutton = new XMLElement('div','Import/Export Extensions as a Bundle');
+					$exportbutton->setAttribute('id','export_xml');
+					$exportbutton->setAttribute('class','options');
 					$exportinput = new XMLElement('button','Export',array('id'=>'export_extensions'));
 					$export->appendChild($exportinput);
-					$wrapper->appendChild($export);					
+					$wrapper->appendChild($exportbutton);
+
 			}
 		 }
-		 function getChildren() {		   
-		   //foreach($this as $key => $value) {
+
+		 function getChildren(){
 				
 			    $children = $this->_children;
-				//array_push($children,$div);
 					
 				return $children;
-		  // }
 		}
+
 		public function appendAssets(array $context) {
 			// store de callback array localy
 			$c = Administration::instance()->getPageCallback();
