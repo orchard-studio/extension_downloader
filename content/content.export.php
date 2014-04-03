@@ -9,6 +9,7 @@
 	class contentExtensionExtension_DownloaderExport extends XMLPage {
 
 		public function __construct() {
+
 			$this->_Result = new XMLElement('result');
 			$this->_Result->setIncludeHeader(true);
 
@@ -23,24 +24,18 @@
 			$extensions = $_REQUEST['a'];
 			$extensions = explode(',',$extensions);
 			
-			$ext = new XMLElement('extensions');
-			$container = new XMLElement('extension');
-			
-			$name = new XMLElement('name',URL . ' Bundle');
-			$container->appendChild($name);
-			$status = new XMLElement('status','experimental');
-			$container->appendChild($status);
+			$container = new XMLElement('bundle');
 			
 			foreach($extensions as $extension =>$value){
-				$link = new XMLElement('link');
+				$link = new XMLElement('extension');
 				$url = $value;
-				$link->setAttribute('href',$url);
+				$link->setAttribute('commit',$url);
 				
 				$container->appendChild($link);
 			}
 
-			$ext->appendChild($container);
-			$this->_Result = $ext;
+			
+			$this->_Result = $container;
 
 		}
 		

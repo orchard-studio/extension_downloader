@@ -227,7 +227,7 @@
 
 	function handleFileSelect(evt) {
 
-		alert('Function triggered');
+		//alert('Function triggered');
 
 
 		var files = evt.target.files; 
@@ -242,19 +242,19 @@
 		reader.onloadend = function(evt) {
 		  if (evt.target.readyState == FileReader.DONE) {			
 			var text = evt.target.result;
-			var xmlDoc = $.parseXML( text ),xml = $(xmlDoc),exts = xml.find( "extensions" );						
+			var xmlDoc = $.parseXML( text ),xml = $(xmlDoc),exts = xml.find( "bundle" );						
 			var link = [];
 			var arr = [];
-			$.each(exts.find('extension').find('link'), function(i, el){
+			$.each(exts.find('extension'), function(i, el){
 					var ext = $(el);
-					link.push(ext.attr('href'));
-					var name = ext.attr('href');
+					link.push(ext.attr('commit'));
+					var name = ext.attr('commit');
 					name = name.split('/');
 					//alert(name);
 					arr.push(' • \t' + name[4]);
 					//$('#list').after(ext.attr('href')+ '<br/>');					
 			});
-			link = link.join('|');
+			link = link.join(',');
 			arr = arr.join('\n');
 			
 			if (confirm('These are the Extensions you want to Install \n \n ' + arr + ' \n \n If they exist they will be Overwritten, Do you want to Overwrite?')) {	

@@ -57,26 +57,29 @@
 					$wrapper = $body->Context;
 					
 					/* Input filebrowser button */
-					$div = new XMLElement('div');
-					$div->setAttribute('id','browse_xml');
-					$div->setAttribute('class','options');
+					$ul = new XMLElement('ul');
+					$ul->setAttribute('class','actions');
+
+					$span = new XMLElement('span','Import/Export Extensions as a Bundle');
 					
+					$ul->appendChild($span);
+					
+					/* Import Bundle */
 					$importinput = Widget::Input('','','file',array('id'=>'xml_browser'));
-					$importbutton = new XMLElement('button', 'Import', array('id'=>'import_extensions'));
-					
-					$div->appendChild($importinput);
-					$div->appendChild($importbutton);					
-					$wrapper->appendChild($div);
-					
+					$importbutton = new XMLElement('li');
+					$importlink = Widget::Anchor('Import', '#', 'Import', 'button', 'import_extensions', null);
+					$importbutton->appendChild($importlink);
+
 					/* Export Bundle of Extensions as XML */
-					$exportbutton = new XMLElement('div','Import/Export Extensions as a Bundle');
-					$exportbutton->setAttribute('id','export_xml');
-					$exportbutton->setAttribute('class','options');
+					$exportbutton = new XMLElement('li');
+					$exportlink = Widget::Anchor('Export', '#', 'Export', 'button', 'export_extensions',null);
+					$exportbutton->appendChild($exportlink);
+					
+					$ul->appendChild($importinput);
+					$ul->appendChild($importbutton);
+					$ul->appendChild($exportbutton);		
 
-					$exportinput = new XMLElement('button','Export',array('id'=>'export_extensions'));
-					$exportbutton->appendChild($exportinput);
-
-					$wrapper->appendChild($exportbutton);
+					$wrapper->appendChild($ul);
 
 			}
 		 }
