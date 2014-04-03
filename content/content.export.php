@@ -13,39 +13,27 @@
 			$doc = new DOMDocument('1.0');
 			$doc->formatOutput = true;
 			$ext = $doc->createElement('extensions');
-			$container = $doc->createElement('extension');
-			
+			$container = $doc->createElement('extension');			
 			$name = $doc->createElement('name',URL . ' Bundle');
 			$container->appendChild($name);
 			$version = $doc->createElement('version','1.0');
 			$container->appendChild($version);
 			$status = $doc->createElement('status','experimental');
-			$container->appendChild($status);
-			
+			$container->appendChild($status);			
 			foreach($extensions as $extension =>$value){
 				$link = $doc->createElement('link');
 				$url = $value.'/zipball/master';
-				$link->setAttribute('href',$url);
-				
+				$link->setAttribute('href',$url);				
 				$container->appendChild($link);
 			}
-			//var_dump($container);
-			//die;
 			$ext->appendChild($container);
 			$doc->appendChild($ext);
 			$orig = URL.'-bundle'.$_REQUEST['a'];
 			$hash = md5($orig);
 			$file = MANIFEST. '/tmp/' .$hash.'.xml';
-			$xml = $doc->saveXML();
-			
-			//$bool = General::writeFile($file,$xml,null,'w+');
-			
+			$xml = $doc->saveXML();			
+			General::writeFile($file,$xml,null,'w+');			
 			$this->_Result['url'] = $xml;
-			//die;
 			$this->_Result['success'] = true;
-		}
-		private function grabBundle(){
-			
-		}
-		
+		}			
 	}

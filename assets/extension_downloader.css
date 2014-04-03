@@ -6,7 +6,29 @@
 #extension_downloader {
 	padding: 1em 0;
 }
+#browse_xml {
 
+	width: 65px;
+	float:right;
+	
+}
+#xml_browse{
+	margin-left:0;
+}
+#xml_browser{
+	content:'Import';
+	visibility: hidden;
+	width: 0;
+	height: 0;
+}
+#export_xml{
+	width:255px;
+	float:right;	
+}
+#extension_downloader{
+	float:left;
+	width:100%;
+}
 #extension_downloader h3 {
 	padding: 0 20px 0 0;
 	margin: 0 1em 0 0;

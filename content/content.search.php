@@ -21,9 +21,20 @@
 		 */
 		public function view() {
 			try {
-				$this->parseInput();
-				$this->search();
-				$this->_Result['success'] = true; 
+				if(strpos($_REQUEST['q'],'bundle')){
+					
+					$bundlenamerepo = $_REQUEST['q'];					
+					$user = explode('-',$_REQUEST['q']);
+					$user = $user[0];
+					$this->grabBundle($user,$bundlenamerepo);
+					//echo $bundlenamerepo;
+					$this->_Result['success'] = true;
+					
+				}else{
+					$this->parseInput();
+					$this->search();
+					$this->_Result['success'] = true; 
+				}
 			} catch (Exception $e) {
 				$this->_Result['empty'] = $this->empty;
 				$this->_Result['success'] = false; 
@@ -47,55 +58,85 @@
 				$this->compatibleVersion = $this->version;
 			}
 		}
-		
+		private function grabBundle($user,$bundlenamerepo){
+			$query = General::sanitize($_REQUEST['q']);
+			$url = "http://raw.githubusercontent.com/orchard-studio/orchard-bundle/master/bundle.xml";
+			$gateway = new Gateway();
+			$gateway->init($url);			
+			$response = @$gateway->exec();
+			$xml = @simplexml_load_string($response);
+			var_dump($response);
+			die;
+			$extensions = $xml->xpath('extensions/extension');
+			foreach ($extensions as $index => $ext) {
+					$name = $ext->xpath('name');
+					$id = $ext->xpath('@id');
+					$developer = $ext->xpath('developer/name');
+					$version = $ext->xpath('version');
+					$status = $ext->xpath('status');
+					$compatible = $ext->xpath("compatibility/symphony[@version='$this->version']");					
+					$res = array(
+						'handle' => (string)$id[0],
+						'name' => (string)$name[0],
+						'by' => (string)$developer[0],
+						'version' => (string)$version[0],
+						'status' => (string)$status[0],
+						'compatible' => ($compatible != null),
+					);
+			}
+		}
 		private function search() {
 			$results = array();
-			$url = "http://symphonyextensions.com/api/extensions/?keywords=$this->query&type=&compatible-with=$this->compatibleVersion&sort=updated&order=desc";
+			
+				$url = "http://symphonyextensions.com/api/extensions/?keywords=$this->query&type=&compatible-with=$this->compatibleVersion&sort=updated&order=desc";
+			
 			
 			// create the Gateway object
-			$gateway = new Gateway();
+				$gateway = new Gateway();
 
-			// set our url
-			$gateway->init($url);
-
-			// get the raw response, ignore errors
-			$response = @$gateway->exec();
-			
-			if (!$response) {
-				throw new Exception(__("Could not read from %s", array($url)));
-			}
-			
-			// parse xml
-			$xml = @simplexml_load_string($response);
-			
-			if (!$xml) {
-				throw new Exception(__("Could not parse xml from %s", array($url)));
-			}
-			
-			$extensions = $xml->xpath('/response/extensions/extension');
-			
-			foreach ($extensions as $index => $ext) {
-				$name = $ext->xpath('name');
-				$id = $ext->xpath('@id');
-				$developer = $ext->xpath('developer/name');
-				$version = $ext->xpath('version');
-				$status = $ext->xpath('status');
-				$compatible = $ext->xpath("compatibility/symphony[@version='$this->version']");
+				// set our url
+				$gateway->init($url);
+					
+				// get the raw response, ignore errors
+				$response = @$gateway->exec();
 				
-				$res = array(
-					'handle' => (string)$id[0],
-					'name' => (string)$name[0],
-					'by' => (string)$developer[0],
-					'version' => (string)$version[0],
-					'status' => (string)$status[0],
-					'compatible' => ($compatible != null),
-				);
+				if (!$response) {
+					throw new Exception(__("Could not read from %s", array($url)));
+				}
 				
-				$results[] = $res;
-			}
+				// parse xml
+				$xml = @simplexml_load_string($response);
+				
+				if (!$xml) {
+					throw new Exception(__("Could not parse xml from %s", array($url)));
+				}
+				
+				$extensions = $xml->xpath('/response/extensions/extension');			
+				
 			
-			// set results array
-			$this->_Result['results'] = $results;
+				foreach ($extensions as $index => $ext) {
+					$name = $ext->xpath('name');
+					$id = $ext->xpath('@id');
+					$developer = $ext->xpath('developer/name');
+					$version = $ext->xpath('version');
+					$status = $ext->xpath('status');
+					$compatible = $ext->xpath("compatibility/symphony[@version='$this->version']");
+					
+					$res = array(
+						'handle' => (string)$id[0],
+						'name' => (string)$name[0],
+						'by' => (string)$developer[0],
+						'version' => (string)$version[0],
+						'status' => (string)$status[0],
+						'compatible' => ($compatible != null),
+					);
+					
+					$results[] = $res;
+				}
+			
+				// set results array
+				$this->_Result['results'] = $results;
+			
 		}
 		
 	}

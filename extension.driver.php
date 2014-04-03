@@ -53,34 +53,30 @@
 			if($page['driver'] == 'systemextensions') {					
 					$body =  $context['oPage'];
 					$wrapper =  $body->Context;
-					$workspace = WORKSPACE . 'bundles';
-					$options = General::listStructure(WORKSPACE. '/bundles');
-					$options = $options['filelist'];
-					$alloptions = [];
-					foreach($options as $keys => $option){
-						$attr = array();
-						$attr[0] = $option;
-						$attr[1] = false;
-						$arrs = explode('/',$option);						
-						$attr[2] = end($arrs);												
-						$alloptions[] = $attr;
-					}
 					
-					$div = new XMLElement('div','Select Your Local XML File');
-					
-					$select = Widget::Select('bundle_extensions',$alloptions,array('id'=>'xml_file','class'=>'extension-bundle'));
-					$div->setAttribute('id','Extension_Downloader');
-					$div->appendChild($select);
+					/*Input filebrowser button*/
+					$div = new XMLElement('div');
+					$div->setAttribute('id','browse_xml');
+					$div->setAttribute('class','options');
+					$input = Widget::Input('','','file',array('id'=>'xml_browser'));
+					$button = new XMLElement('button', 'Import' );
+					$button->setAttribute('id','xml_browse');
+					$div->appendChild($input);
+					$div->appendChild($button);					
 					$wrapper->appendChild($div);
+					// output js output
+					//$output = new XMLElement('output');
+					//$output->setAttribute('id','list');					
+					//$div->appendChild($output);
+					//$wrapper->appendChild($div);
 					/*Export button*/
-					$contents = $body->Contents;
-					
-					$export = new XMLElement('div','Export Extensions as a Bundle');
+					//$contents = $body->Contents;					
+					$export = new XMLElement('div','Import/Export Extensions as a Bundle');
+					$export->setAttribute('id','export_xml');
+					$export->setAttribute('class','options');
 					$exportinput = new XMLElement('button','Export',array('id'=>'export_extensions'));
 					$export->appendChild($exportinput);
-					$contents->appendChild($export);
-					//var_dump($contents);
-					//die;
+					$wrapper->appendChild($export);					
 			}
 		 }
 		 function getChildren() {		   

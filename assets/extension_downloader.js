@@ -11,7 +11,8 @@
 	var DOWNLOAD_URL = BASE_URL + 'download/';
 	var SEARCH_URL = BASE_URL + 'search/';
 	var EXTENSIONS_URL = SYM_URL + 'system/extensions/';
-	var EXPORT_URL = BASE_URL + 'export/'
+	var EXPORT_URL = BASE_URL + 'export/';
+	var UPLOAD_FILE = BASE_URL + 'upload/';
 	var COMPATIBLE_ONLY = true;
 	
 	var win = $(window);
@@ -186,16 +187,16 @@
 	var init = function () {
 		injectUI();
 		win.load(selectExtension);
+		selected();
 		$('#xml_file').change(function(event){
 			event.preventDefault();
 			var value = $(this).val();
 			check();
+			selected();
 		});
-		selected();
+		 document.getElementById('xml_browser').addEventListener('change', handleFileSelect, false);
 		$('button#export_extensions').click(function(event){
-			event.preventDefault();	
-			
-				
+			event.preventDefault();		
 			var arr = [];
 			$('.selected').each(function(){			
 				var id = $(this).find('td:nth-child(4)').find('a').attr('href');
@@ -205,16 +206,81 @@
 			$.post(EXPORT_URL,	{a : text},function(data){						
 				if(data.success){
 					
-					
-					
 				}
 			}).fail(function(e){
-				alert('Export failed  - '+ e.status);
-					
+				alert('Export failed  - '+ e.status);					
 			});
 		});
+		
+		
+		document.querySelector('#xml_browse').addEventListener('click', function(e) {
+		  // Use the native click() of the file input.
+		  document.querySelector('#xml_browser').click();
+		}, false);
 	};
-	
+	function handleFileSelect(evt) {
+		var files = evt.target.files; 
+		if (!files.length) {
+		  alert('Please select a file!');
+		  return;
+		}	
+		var file = files[0];		
+		var start = 0;
+		var stop = file.size - 1;
+		var reader = new FileReader();
+		reader.onloadend = function(evt) {
+		  if (evt.target.readyState == FileReader.DONE) {			
+			var text = evt.target.result;
+			var xmlDoc = $.parseXML( text ),xml = $(xmlDoc),exts = xml.find( "extensions" );						
+			var link = [];
+			var arr = [];
+			$.each(exts.find('extension').find('link'), function(i, el){
+					var ext = $(el);
+					link.push(ext.attr('href'));
+					var name = ext.attr('href');
+					name = name.split('/');
+					//alert(name);
+					arr.push(' • \t' + name[4]);
+					//$('#list').after(ext.attr('href')+ '<br/>');					
+			});
+			link = link.join('|');
+			arr = arr.join('\n');
+			
+			if (confirm('These are the Extensions you want to Install \n \n ' + arr + ' \n \n If they exist they will be Overwritten, Do you want to Overwrite?')) {	
+						wrap.addClass('loading');
+				$('#xml_browser').attr('disabled', 'disabled').blur();	
+				$.post(UPLOAD_FILE,	{a : link},function(data){						
+						
+					if(data.success){
+						
+						alert('Download completed! Page will refresh.');
+						
+							document.location = EXTENSIONS_URL;
+							selected();
+						
+					} else if (data.exists) {
+						if (confirm('Extension ' + data.handle + ' already exists. Overwrite?')) {	
+							check(true);
+						}
+					}
+				}).fail(function(e){
+					alert('Import Complete');					
+				}).always(function (e) {
+					wrap.removeClass('loading');
+					$('#xml_browser').removeAttr('disabled');
+					$('#xml_browser').focus();
+				});
+			}
+		  }
+		};
+		
+		var blob = file.slice(start, stop + 1);
+		reader.readAsBinaryString(blob);
+		
+		
+	  }
+	 
+ 
 	var selected = function(){
 		$('tr.inactive.extension-can-install').each(function(){
 			$(this).addClass('selected');
