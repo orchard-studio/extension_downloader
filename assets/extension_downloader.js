@@ -191,13 +191,7 @@
 		injectUI();
 		win.load(selectExtension);
 		selected();
-		$('#xml_file').change(function(event){
-			event.preventDefault();
-			var value = $(this).val();
-			check();
-		});
 		
-
 		document.getElementById('xml_browser').addEventListener('change', handleFileSelect, false);
 
 		$('body').append("<iframe id='exportextensions' style='display:none'></iframe>");
@@ -226,9 +220,6 @@
 	};
 
 	function handleFileSelect(evt) {
-
-		//alert('Function triggered');
-
 
 		var files = evt.target.files; 
 		if (!files.length) {
@@ -271,7 +262,7 @@
 						
 					} else if (data.exists) {
 						if (confirm('Extension ' + data.handle + ' already exists. Overwrite?')) {	
-							check(true);
+							
 						}
 					}
 				}).fail(function(e){
@@ -297,38 +288,7 @@
 			$(this).addClass('selected');
 		});
 	}
-	
-	function check(force){
-		wrap.addClass('loading');
-		$('#xml_file').attr('disabled', 'disabled').blur();
-		var DOWNLOAD_URL = BASE_URL + 'download/';
-		var value = $('#xml_file').val();
-		var data = {q: value,force: force};		
-		$.post(DOWNLOAD_URL, data,function (data) {
-				
-				if (data.success) {
-					alert('Download completed! Page will refresh.');
-					if(data.handle == 'undefined'){
-						document.location = EXTENSIONS_URL + '?download_handle=bundle' ;
-					}else{
-						document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
-					}
-				} else if (data.exists) {
-					if (confirm('Extension ' + data.handle + ' already exists. Overwrite?')) {	
-						check(true);
-					}
-				} else {
-					error(data);
-					document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
-				}				
-		}).fail(function(e){				
-			document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
-		}).always(function (e) {
-				wrap.removeClass('loading');
-				$('#xml_file').removeAttr('disabled');
-				$('#xml_file').focus();
-		});
-	};
+
 	$(init);
 	
 })(jQuery);
