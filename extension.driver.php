@@ -53,16 +53,17 @@
 			$page = Administration::instance()->getPageCallback();
 
 			if($page['driver'] == 'systemextensions') {					
-					$body =  $context['oPage'];
-					$wrapper =  $body->Context;
+					$body = $context['oPage'];
+					$wrapper = $body->Context;
 					
 					/* Input filebrowser button */
 					$div = new XMLElement('div');
 					$div->setAttribute('id','browse_xml');
 					$div->setAttribute('class','options');
+					
 					$importinput = Widget::Input('','','file',array('id'=>'xml_browser'));
-					$importbutton = new XMLElement('button', 'Import' );
-					$importbutton->setAttribute('id','xml_browse');
+					$importbutton = new XMLElement('button', 'Import', array('id'=>'import_extensions'));
+					
 					$div->appendChild($importinput);
 					$div->appendChild($importbutton);					
 					$wrapper->appendChild($div);
@@ -71,8 +72,10 @@
 					$exportbutton = new XMLElement('div','Import/Export Extensions as a Bundle');
 					$exportbutton->setAttribute('id','export_xml');
 					$exportbutton->setAttribute('class','options');
+
 					$exportinput = new XMLElement('button','Export',array('id'=>'export_extensions'));
-					$export->appendChild($exportinput);
+					$exportbutton->appendChild($exportinput);
+
 					$wrapper->appendChild($exportbutton);
 
 			}

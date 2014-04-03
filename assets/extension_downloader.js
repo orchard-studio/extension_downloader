@@ -197,13 +197,12 @@
 			check();
 		});
 		
-		$('#xml_browser').addEventListener('change', handleFileSelect, false);
-		
-		selected();
+
+		document.getElementById('xml_browser').addEventListener('change', handleFileSelect, false);
 
 		$('body').append("<iframe id='exportextensions' style='display:none'></iframe>");
 
-		$('button#export_extensions').click(function(event){
+		$('#export_extensions').on('click',function(event){
 			event.preventDefault();	
 			
 			var arr = [];
@@ -214,17 +213,23 @@
 			var text = arr.join(',');
 
 			arr =='' ? alert('Please select extensions to export') : $('#exportextensions').attr('src',EXPORT_URL +'?a='+text);
+
 		});
 		
 		
-		$('#xml_browse').addEventListener('click', function(e) {
+		$('#import_extensions').on('click', function(e) {
+		   e.preventDefault();
 		  // Use the native click() of the file input.
 		  $('#xml_browser').click();
 
-		}, false);
+		});
 	};
 
 	function handleFileSelect(evt) {
+
+		alert('Function triggered');
+
+
 		var files = evt.target.files; 
 		if (!files.length) {
 		  alert('Please select a file!');
