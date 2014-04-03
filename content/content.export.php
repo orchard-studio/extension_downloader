@@ -3,37 +3,45 @@
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
 
 	require_once(EXTENSIONS . '/extension_downloader/lib/require.php');
+	require_once(TOOLKIT . '/class.xmlpage.php');
 	
 
-	class contentExtensionExtension_DownloaderExport extends JSONPage {
-		
-		public function view() {
+	class contentExtensionExtension_DownloaderExport extends XMLPage {
+
+		public function __construct() {
+			$this->_Result = new XMLElement('result');
+			$this->_Result->setIncludeHeader(true);
+
+			$this->setHttpStatus(self::HTTP_STATUS_OK);
+			$this->addHeaderToPage('Content-Type', 'text/xml');
+			$this->addHeaderToPage("Content-Disposition: attachment; filename=extensions-bundle-".time().".xml");
+
+		}
+
+		public function view(){
+
 			$extensions = $_REQUEST['a'];
 			$extensions = explode(',',$extensions);
-			$doc = new DOMDocument('1.0');
-			$doc->formatOutput = true;
-			$ext = $doc->createElement('extensions');
-			$container = $doc->createElement('extension');			
-			$name = $doc->createElement('name',URL . ' Bundle');
+			
+			$ext = new XMLElement('extensions');
+			$container = new XMLElement('extension');
+			
+			$name = new XMLElement('name',URL . ' Bundle');
 			$container->appendChild($name);
-			$version = $doc->createElement('version','1.0');
-			$container->appendChild($version);
-			$status = $doc->createElement('status','experimental');
-			$container->appendChild($status);			
+			$status = new XMLElement('status','experimental');
+			$container->appendChild($status);
+			
 			foreach($extensions as $extension =>$value){
-				$link = $doc->createElement('link');
-				$url = $value.'/zipball/master';
-				$link->setAttribute('href',$url);				
+				$link = new XMLElement('link');
+				$url = $value;
+				$link->setAttribute('href',$url);
+				
 				$container->appendChild($link);
 			}
+
 			$ext->appendChild($container);
-			$doc->appendChild($ext);
-			$orig = URL.'-bundle'.$_REQUEST['a'];
-			$hash = md5($orig);
-			$file = MANIFEST. '/tmp/' .$hash.'.xml';
-			$xml = $doc->saveXML();			
-			General::writeFile($file,$xml,null,'w+');			
-			$this->_Result['url'] = $xml;
-			$this->_Result['success'] = true;
-		}			
+			$this->_Result = $ext;
+
+		}
+		
 	}
