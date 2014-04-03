@@ -245,7 +245,7 @@
 					arr.push(' • \t' + name[4]);
 					//$('#list').after(ext.attr('href')+ '<br/>');					
 			});
-			link = link.join(',');
+			link = link.join('!');
 			arr = arr.join('\n');
 			
 			if (confirm('These are the Extensions you want to Install \n \n ' + arr + ' \n \n If they exist they will be Overwritten, Do you want to Overwrite?')) {	

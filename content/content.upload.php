@@ -16,7 +16,7 @@
 		}
 		public function view() {
 			$extensions = $_REQUEST['a'];
-			$extensions = explode('|',$extensions);			
+			$extensions = explode('!',$extensions);			
 					foreach($extensions as $x => $l){									
 							$this->getRepos($l);							
 					}
