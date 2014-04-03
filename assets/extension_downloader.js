@@ -159,6 +159,7 @@
 		e.preventDefault();
 		return false;
 	};
+	
 	var injectUI = function () {
 		context = $('#context');
 		wrap = $('<div />').attr('id', 'extension_downloader');
@@ -176,6 +177,7 @@
 		input.keyup(keyup);
 		results.on('click', 'a', resultClick);
 	};
+
 	var selectExtension = function () {
 		var qs = queryStringParser.parse();
 		if (!!qs.download_handle) {
@@ -184,6 +186,7 @@
 			win.scrollTop(tr.position().top);
 		}
 	};
+
 	var init = function () {
 		injectUI();
 		win.load(selectExtension);
@@ -192,32 +195,35 @@
 			event.preventDefault();
 			var value = $(this).val();
 			check();
-			selected();
 		});
-		 document.getElementById('xml_browser').addEventListener('change', handleFileSelect, false);
+		
+		$('#xml_browser').addEventListener('change', handleFileSelect, false);
+		
+		selected();
+
+		$('body').append("<iframe id='exportextensions' style='display:none'></iframe>");
+
 		$('button#export_extensions').click(function(event){
-			event.preventDefault();		
+			event.preventDefault();	
+			
 			var arr = [];
 			$('.selected').each(function(){			
 				var id = $(this).find('td:nth-child(4)').find('a').attr('href');
 				arr.push(id);
 			});			
 			var text = arr.join(',');
-			$.post(EXPORT_URL,	{a : text},function(data){						
-				if(data.success){
-					
-				}
-			}).fail(function(e){
-				alert('Export failed  - '+ e.status);					
-			});
+
+			arr =='' ? alert('Please select extensions to export') : $('#exportextensions').attr('src',EXPORT_URL +'?a='+text);
 		});
 		
 		
-		document.querySelector('#xml_browse').addEventListener('click', function(e) {
+		$('#xml_browse').addEventListener('click', function(e) {
 		  // Use the native click() of the file input.
-		  document.querySelector('#xml_browser').click();
+		  $('#xml_browser').click();
+
 		}, false);
 	};
+
 	function handleFileSelect(evt) {
 		var files = evt.target.files; 
 		if (!files.length) {
