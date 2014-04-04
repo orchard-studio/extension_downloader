@@ -16,19 +16,24 @@
 		}
 		public function view() {
 			$extensions = $_REQUEST['a'];
-			$extensions = explode('!',$extensions);			
+			$extensions = explode('!',$extensions);
+			
 					foreach($extensions as $x => $l){									
 							$this->getRepos($l);							
 					}
-			$this->_Result['success'] = true;	
+					
+			$this->_Result['success'] = true;
+			
 		}
 		private function getRepos($url){			
 			$gateway = new Gateway();
-			$link = (string) $url . 'zipball/master/';
-			$gateway->init($link);	
+			$link = (string) rtrim($url,'/') . '/zipball/master';
+			$gateway->init($link);				
+			$response = @$gateway->exec();
+			$parts = explode('/', $link);			
+			$handle = $parts[4];
 			
-			$response = @$gateway->exec();			
-			$this->extensionHandle = self::handleFromURL($link);				
+			$this->extensionHandle = $handle;			
 			$tmpFile = MANIFEST . '/tmp/' . Lang::createHandle($this->extensionHandle);
 			if (!$response) {
 				throw new Exception(__("Could not read from %s", array($url)));
@@ -53,11 +58,5 @@
 			if (!@rename($curDir, $toDir)) {
 				throw new Exception(__('Could not rename %s to %s', array($curDir, $toDir)));
 			}
-		}
-		private static function handleFromURL($path) {			
-			$parts = explode('/', $path);			
-			$handle = $parts[4];//$parts[count($parts)-3];
-			//$parts = explode('.', $handle);			
-			return $handle;//$parts[count($parts)-1];
-		}
+		}		
 	}
