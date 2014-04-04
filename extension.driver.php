@@ -5,8 +5,7 @@
 	*/
 
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
-
-
+	
 	/**
 	 *
 	 * @author Deux Huit Huit
@@ -14,12 +13,14 @@
 	 *
 	 */
 	class extension_extension_downloader extends Extension {
-
+		
+		
+		//if (is_null(ExtensionManger::$_instance)) die("<h2>Error</h2><p>You cannot directly access this file</p>");
 		/**
 		 * Name of the extension
 		 * @var string
 		 */
-		const EXT_NAME = 'Extension Downloader';
+		//const EXT_NAME = 'Extension Downloader';
 		
 		/**
 		 * Symphony utility function that permits to
@@ -48,39 +49,46 @@
 		 * Appends javascript file referneces into the head, if needed
 		 * @param array $context
 		 */
-		 public function listBundles(array $context){
-
+		 public function listBundles(array $context){			
 			$page = Administration::instance()->getPageCallback();
-
+			
 			if($page['driver'] == 'systemextensions') {					
 					$body = $context['oPage'];
 					$wrapper = $body->Context;
-					
-					/* Input filebrowser button */
-					$ul = new XMLElement('ul');
-					$ul->setAttribute('class','actions');
+					if(!is_null($wrapper)){
+						/* Input filebrowser button */
+						$form = new XMLElement('form');
+						$form->setAttribute('method','post');
+						//$form->setAttribute('action',SYMPHONY_URL.'/extension/extension_downloader/upload/');
+						$form->setAttribute('ENCTYPE','multipart/form-data');
+						$form->setAttribute('class','wrapped-form');
+						$form->setAttribute('id','upload');
+						$ul = new XMLElement('ul');
+						$ul->setAttribute('class','actions');
 
-					$span = new XMLElement('span','Import/Export Extensions as a Bundle');
-					
-					$ul->appendChild($span);
-					
-					/* Import Bundle */
-					$importinput = Widget::Input('','','file',array('id'=>'xml_browser'));
-					$importbutton = new XMLElement('li');
-					$importlink = Widget::Anchor('Import', '#', 'Import', 'button', 'import_extensions', null);
-					$importbutton->appendChild($importlink);
+						$span = new XMLElement('span','Import/Export Extensions as a Bundle');
+						
+						$ul->appendChild($span);
+						
+						/* Import Bundle */
+						$importinput = Widget::Input('files','','file',array('id'=>'xml_browser'));
+						$importbutton = new XMLElement('li');
+						$importlink = Widget::Anchor('Import', '#', 'Import', 'button', 'import_extensions', null);
+						$importbutton->appendChild($importlink);
 
-					/* Export Bundle of Extensions as XML */
-					$exportbutton = new XMLElement('li');
-					$exportlink = Widget::Anchor('Export', '#', 'Export', 'button', 'export_extensions',null);
-					$exportbutton->appendChild($exportlink);
-					
-					$ul->appendChild($importinput);
-					$ul->appendChild($importbutton);
-					$ul->appendChild($exportbutton);		
-
-					$wrapper->appendChild($ul);
-
+						/* Export Bundle of Extensions as XML */
+						$exportbutton = new XMLElement('li');
+						$exportlink = Widget::Anchor('Export', '#', 'Export', 'button', 'export_extensions',null);
+						$exportbutton->appendChild($exportlink);
+						
+						$ul->appendChild($importinput);
+						$ul->appendChild($importbutton);
+						$ul->appendChild($exportbutton);		
+						//var_dump($ul);
+						//die;
+						$form->appendChild($ul);
+						$wrapper->appendChild($form);
+					}
 			}
 		 }
 

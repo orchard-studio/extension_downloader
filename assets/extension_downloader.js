@@ -196,78 +196,31 @@
 			vars[key] = value;
 		});
 		return vars;
-	}
-	function handleFileSelect(evt) {
-
-		var files = evt.target.files; 
-		if (!files.length) {
-		  alert('Please select a file!');
-		  return;
-		}	
-		var file = files[0];		
-		var start = 0;
-		var stop = file.size - 1;
-		var reader = new FileReader();
-		reader.onloadend = function(evt) {
-		  if (evt.target.readyState == FileReader.DONE) {			
-			var text = evt.target.result;
-			var xmlDoc = $.parseXML( text ),xml = $(xmlDoc),exts = xml.find( "bundle" );						
-			var link = [];
-			var arr = [];
-			$.each(exts.find('extension'), function(i, el){
-					var ext = $(el);
-					link.push(ext.attr('commit'));
-					var name = ext.attr('commit');
-					name = name.split('/');					
-					arr.push(' • \t' + name[4]);									
-					
-			});
-			link = link.join('!');
-			arr = arr.join('\n');
-			
-			if (confirm('These are the Extensions you want to Install \n\n ' + arr + ' \n\n If they exist they will be Overwritten, Do you want to Overwrite?')) {	
-						wrap.addClass('loading');
-				$('#xml_browser').attr('disabled', 'disabled').blur();	
-				$.post(UPLOAD_FILE,	{a : link},function(data){						
-
-					if(data.success){
-
-						alert('Download completed! Page will refresh.');
-
-							document.location = EXTENSIONS_URL;
-							selected();
-
-					} else if (data.exists) {
-						if (confirm('Extension ' + data.handle + ' already exists. Overwrite?')) {	
-
-						}
-					}
-				}).fail(function(e){
-					alert('Import Failed');					
-				}).always(function (e) {
-					wrap.removeClass('loading');
-					$('#xml_browser').removeAttr('disabled');
-					$('#xml_browser').focus();
-				})
-			}
-		  }
-		};
-		var blob = file.slice(start, stop + 1);
-		reader.readAsBinaryString(blob);		
-	  }
+	}	 
 	var init = function () {
 		injectUI();
 		win.load(selectExtension);
+		
+		/*  HIGHTLIGHTING RECENTLY DOWNLOADED EXTENSIONS */
 		var a = getUrlVars()["a"];
-		if(a == '1'){
-			selected();
-		}
-		$('#xml_browser').on('change', handleFileSelect);
+		a == '1'? selected() : '';		
+		/*-----------------------------*/
+		
 		$('body').append("<iframe id='exportextensions' style='display:none'></iframe>");
-		$('#import_extensions').on('click', function(e) {
-			e.preventDefault();
+		
+		/*---------------------------- EVENT FUNCTIONS --------------*/
+		$('#xml_browser').on('change',function(event){
+			event.preventDefault();
+			$('#upload').submit();	
+		});	
+
+		
+		$('#import_extensions').on('click', function(event) {
+			event.preventDefault();
 			$('#xml_browser').click();
 		});
+		
+		
 		$('#export_extensions').on('click',function(event){
 			event.preventDefault();				
 			var arr = [];
@@ -278,8 +231,24 @@
 			var text = arr.join(',');
 			arr =='' ? alert('Please select extensions to export') : $('#exportextensions').attr('src',EXPORT_URL +'?a='+text);
 		});
+		
+		
+		$('#upload').on('submit', function(event) {
+			event.preventDefault();					
+			if (confirm('If ANY of the extensions already exist they will be Overwritten?')) {
+				var oData = new FormData(document.forms.namedItem("upload"));
+				var oReq = new XMLHttpRequest();		 
+				oReq.open("POST",UPLOAD_FILE, true);
+				oReq.onload = function(oEvent) {							
+					alert('Download completed! Page will refresh.');
+					document.location = EXTENSIONS_URL + '?a=1';				
+			  };
+			  oReq.send(oData);
+			  ev.preventDefault();
+		  }
+		});
+		/*---------------------------------------------------------------------------*/
 	};
-	
 	$(init);
 	
 })(jQuery);

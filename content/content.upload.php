@@ -15,15 +15,42 @@
 			return EXTENSIONS . '/' . $this->extensionHandle;	
 		}
 		public function view() {
-			$extensions = $_REQUEST['a'];
-			$extensions = explode('!',$extensions);
-			
-					foreach($extensions as $x => $l){									
-							$this->getRepos($l);							
-					}
+					$files = $_REQUEST['files'];
 					
-			$this->_Result['success'] = true;
-			
+					$error = [];
+					$uploaddir = MANIFEST . '/tmp/';
+					foreach($_FILES as $file)
+					{
+						if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name'])))
+						{
+							$tmpfile = $uploaddir .$file['name'];							
+							$this->readDirectoryXML($tmpfile);
+							$error[] = false;
+						}
+						else
+						{
+							$error[] = true;
+							
+						}
+					}	
+					if($error[0] == false){
+							$this->_Result['files'] = $_REQUEST['files'];
+							//$this->_Result['success'] = true;						
+					}else{
+						//$this->_Result['error'] = true;
+						//$this->_Result['files'] = $files;
+					}
+					//$this->_Result['files'] = $files;
+		}
+		public function readDirectoryXML($dir){
+			$sxe = simplexml_load_file($dir);	
+				
+			foreach($sxe->extension as $links){
+
+					$href = (string) $links->attributes()['commit'];
+					$this->getRepos($href);
+			}			
+
 		}
 		private function getRepos($url){			
 			$gateway = new Gateway();
