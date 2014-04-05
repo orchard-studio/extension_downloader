@@ -59,7 +59,7 @@
 						/* Input filebrowser button */
 						$form = new XMLElement('form');
 						$form->setAttribute('method','post');
-						//$form->setAttribute('action',SYMPHONY_URL.'/extension/extension_downloader/upload/');
+						$form->setAttribute('action',SYMPHONY_URL.'/extension/extension_downloader/upload/');
 						$form->setAttribute('ENCTYPE','multipart/form-data');
 						$form->setAttribute('class','wrapped-form');
 						$form->setAttribute('id','upload');

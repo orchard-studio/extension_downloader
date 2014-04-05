@@ -21,10 +21,21 @@
 					$uploaddir = MANIFEST . '/tmp/';
 					foreach($_FILES as $file)
 					{
+						//var_dump($file);
+						//die;
+						
 						if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name'])))
 						{
-							$tmpfile = $uploaddir .$file['name'];							
-							$this->readDirectoryXML($tmpfile);
+							$tmpfile = $uploaddir .$file['name'];	
+							
+							$sxe = simplexml_load_file($tmpfile);
+							$commit = (string) $sxe->attributes()['commit'];
+							$path_parts = pathinfo($commit);
+							if($path_parts['extension'] == 'xml'){
+								$this->readBundle($tmpfile);
+							}else{
+								$this->readDirectoryXML($tmpfile);
+							}
 							$error[] = false;
 						}
 						else
@@ -34,7 +45,7 @@
 						}
 					}	
 					if($error[0] == false){
-							$this->_Result['files'] = $_REQUEST['files'];
+							$this->_Result['files'] = $_FILES[0]['name'];
 							//$this->_Result['success'] = true;						
 					}else{
 						//$this->_Result['error'] = true;
@@ -42,14 +53,24 @@
 					}
 					//$this->_Result['files'] = $files;
 		}
+		public function readBundle($dir){
+			$sxe = simplexml_load_file($dir);
+				
+				foreach($sxe as $links){
+					$href = (string) $links->attributes()['commit'];
+					$this->readDirectoryXML($href);
+				}
+		}
 		public function readDirectoryXML($dir){
 			$sxe = simplexml_load_file($dir);	
+			
 				
-			foreach($sxe->extension as $links){
+				foreach($sxe->extension as $links){
 
-					$href = (string) $links->attributes()['commit'];
-					$this->getRepos($href);
-			}			
+						$href = (string) $links->attributes()['commit'];
+						$this->getRepos($href);
+				}			
+			
 
 		}
 		private function getRepos($url){			

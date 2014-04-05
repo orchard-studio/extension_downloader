@@ -234,7 +234,7 @@
 		
 		
 		$('#upload').on('submit', function(event) {
-			event.preventDefault();					
+			//event.preventDefault();					
 			if (confirm('If ANY of the extensions already exist they will be Overwritten?')) {
 				$('#extension_downloader').addClass('loading');
 				$('#import_extensions').attr('disabled', 'disabled').blur();
@@ -245,7 +245,7 @@
 				$('#extension_downloader').removeClass('loading');
 				$('#import_extensions').removeAttr('disabled');							
 					alert('Download completed! Page will refresh.');
-					document.location = EXTENSIONS_URL + '?a=1';
+					//document.location = EXTENSIONS_URL + '?a=1';
 					
 			  };
 			  oReq.send(oData);
