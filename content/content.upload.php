@@ -19,23 +19,19 @@
 					
 					$error = [];
 					$uploaddir = MANIFEST . '/tmp/';
-					foreach($_FILES as $file)
-					{
-						//var_dump($file);
-						//die;
-						
-						if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name'])))
-						{
+					foreach($_FILES as $file){
+
+						if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name']))){
 							$tmpfile = $uploaddir .$file['name'];	
 							
 							$sxe = simplexml_load_file($tmpfile);
-							$commit = (string) $sxe->attributes()['commit'];
-							$path_parts = pathinfo($commit);
-							if($path_parts['extension'] == 'xml'){
-								$this->readBundle($tmpfile);
-							}else{
-								$this->readDirectoryXML($tmpfile);
-							}
+							$extension = $sxe->extension;
+							
+							//$path_parts = pathinfo($commit);
+							//var_dump($extension);
+							$this->readExtension($extension,$tmpfile);
+							
+							
 							$error[] = false;
 						}
 						else
@@ -43,7 +39,8 @@
 							$error[] = true;
 							
 						}
-					}	
+					}
+					die;					
 					if($error[0] == false){
 							$this->_Result['files'] = $_FILES[0]['name'];
 							//$this->_Result['success'] = true;						
@@ -53,12 +50,25 @@
 					}
 					//$this->_Result['files'] = $files;
 		}
+		public function readExtension($file,$tmpfile){
+			foreach($file as $extension){
+				$commit = (string) $extension->attributes()['commit'];
+				$path_parts = pathinfo($commit);				
+				if($path_parts['extension'] == 'xml'){
+					$this->readBundle($commit);
+				}else{
+					$this->readDirectoryXML($tmpfile);
+				}
+			}
+		}
 		public function readBundle($dir){
 			$sxe = simplexml_load_file($dir);
 				
 				foreach($sxe as $links){
 					$href = (string) $links->attributes()['commit'];
 					$this->readDirectoryXML($href);
+					var_dump($href);
+					die;
 				}
 		}
 		public function readDirectoryXML($dir){
@@ -68,6 +78,7 @@
 				foreach($sxe->extension as $links){
 
 						$href = (string) $links->attributes()['commit'];
+						$contents = file_get_contents();
 						$this->getRepos($href);
 				}			
 			

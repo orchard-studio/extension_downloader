@@ -1,0 +1,4 @@
+<bundle>
+	<extension commit="https://github.com/orchard-studio/orchard-bundle/blob/master/symphony-default-bundle.xml"/>
+	<extension commit="https://github.com/orchard-studio/orchard-bundle/blob/master/multilingual-bundle.xml"/>	
+</bundle>
