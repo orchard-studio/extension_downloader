@@ -1,0 +1,7 @@
+<bundle>
+  <extension commit="https://github.com/hananils/subsectionmanager"/>
+  <extension commit="https://github.com/symphonists/reflectionfield"/>
+  <extension commit="https://github.com/hananils/sitepreferences"/>
+  <extension commit="https://github.com/vlad-ghita/sections_event"/>
+  <extension commit="https://github.com/andrewminton/codemirror"/>
+</bundle>

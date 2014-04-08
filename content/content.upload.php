@@ -1,5 +1,7 @@
 <?php
-
+	ini_set('xdebug.var_display_max_depth', 500);
+	ini_set('xdebug.var_display_max_children', 2048);
+	ini_set('xdebug.var_display_max_data', 28186);
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
 
 	require_once(EXTENSIONS . '/extension_downloader/lib/require.php');
@@ -22,16 +24,16 @@
 					foreach($_FILES as $file){
 
 						if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name']))){
-							$tmpfile = $uploaddir .$file['name'];	
-							
+							$tmpfile = $uploaddir .$file['name'];								
 							$sxe = simplexml_load_file($tmpfile);
-							$extension = $sxe->extension;
-							
-							//$path_parts = pathinfo($commit);
-							//var_dump($extension);
-							$this->readExtension($extension,$tmpfile);
-							
-							
+							$extension = $sxe->extension->attributes()['commit'];							
+							$path_parts = pathinfo($extension);							
+							if($path_parts['extension'] == 'xml'){								
+								$this->readExtension($sxe,$tmpfile);
+							}
+							else{								
+								$this->readBundle($tmpfile);
+							}							
 							$error[] = false;
 						}
 						else
@@ -39,13 +41,12 @@
 							$error[] = true;
 							
 						}
-					}
-					die;					
+					}							
 					if($error[0] == false){
-							$this->_Result['files'] = $_FILES[0]['name'];
-							//$this->_Result['success'] = true;						
+							//$this->_Result['files'] = $_FILES[0]['name'];
+							$this->_Result['success'] = true;						
 					}else{
-						//$this->_Result['error'] = true;
+						$this->_Result['error'] = true;
 						//$this->_Result['files'] = $files;
 					}
 					//$this->_Result['files'] = $files;
@@ -56,33 +57,22 @@
 				$path_parts = pathinfo($commit);				
 				if($path_parts['extension'] == 'xml'){
 					$this->readBundle($commit);
-				}else{
-					$this->readDirectoryXML($tmpfile);
-				}
+				}														
 			}
 		}
 		public function readBundle($dir){
-			$sxe = simplexml_load_file($dir);
-				
+			$sxe = simplexml_load_file($dir); 
 				foreach($sxe as $links){
 					$href = (string) $links->attributes()['commit'];
-					$this->readDirectoryXML($href);
-					var_dump($href);
-					die;
+					$this->getRepos($href);					
 				}
 		}
 		public function readDirectoryXML($dir){
 			$sxe = simplexml_load_file($dir);	
-			
-				
 				foreach($sxe->extension as $links){
-
-						$href = (string) $links->attributes()['commit'];
-						$contents = file_get_contents();
-						$this->getRepos($href);
+					$href = (string) $links->attributes()['commit'];					
+					$this->getRepos($href);
 				}			
-			
-
 		}
 		private function getRepos($url){			
 			$gateway = new Gateway();
@@ -90,10 +80,9 @@
 			$gateway->init($link);				
 			$response = @$gateway->exec();
 			$parts = explode('/', $link);			
-			$handle = $parts[4];
-			
+			$handle = $parts[4];			
 			$this->extensionHandle = $handle;			
-			$tmpFile = MANIFEST . '/tmp/' . Lang::createHandle($this->extensionHandle);
+			$tmpFile = MANIFEST . '/tmp/' . Lang::createHandle($this->extensionHandle);			
 			if (!$response) {
 				throw new Exception(__("Could not read from %s", array($url)));
 			}
