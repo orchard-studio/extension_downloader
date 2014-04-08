@@ -121,8 +121,7 @@
 		wrap.addClass('loading');
 		input.attr('disabled', 'disabled').blur();
 		
-		$.post(DOWNLOAD_URL, data, function (data) {
-			//alert(DOWNLOAD_URL);
+		$.post(DOWNLOAD_URL, data, function (data) {			
 			if (data.success) {
 				alert('Download completed! Page will refresh.');
 				document.location = EXTENSIONS_URL + '?download_handle=' + data.handle;
@@ -190,7 +189,7 @@
 			$(this).addClass('selected');
 		});
 	}
-	function getUrlVars() {
+	var getUrlVars = function () {
 		var vars = {};
 		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
 			vars[key] = value;
@@ -201,26 +200,28 @@
 		injectUI();
 		win.load(selectExtension);
 		
-		/*  HIGHTLIGHTING RECENTLY DOWNLOADED EXTENSIONS */
+		
+		// uses a string replace function to grab GET request and highlight recently downloaded extensions
 		var a = getUrlVars()["a"];
 		a == '1'? selected() : '';		
-		/*-----------------------------*/
 		
+		// create hidden iframe for export of extensions to force download xml file
 		$('body').append("<iframe id='exportextensions' style='display:none'></iframe>");
 		
-		/*---------------------------- EVENT FUNCTIONS --------------*/
+		
+		// listen to the the filebrowser event once selected in filebrowser perform following event
 		$('#xml_browser').on('change',function(event){
 			event.preventDefault();
 			$('#upload').submit();	
 		});	
 
-		
+		// adds listen event to button for filebrowser without using default input type file
 		$('#import_extensions').on('click', function(event) {
 			event.preventDefault();
 			$('#xml_browser').click();
 		});
 		
-		
+		// export selected extensions URLs once button clicked  as formatted xml file
 		$('#export_extensions').on('click',function(event){
 			event.preventDefault();				
 			var arr = [];
@@ -232,12 +233,14 @@
 			arr =='' ? alert('Please select extensions to export') : $('#exportextensions').attr('src',EXPORT_URL +'?a='+text);
 		});
 		
-		
+		// listen to submit of form and post to content.upload.php file
+		// add appropriate actions to ui for loading, and alert and reload upon success of data retrieved
 		$('#upload').on('submit', function(event) {
-			event.preventDefault();					
+			event.preventDefault();		
+			var control = $("#import_extensions");			
 			if (confirm('If ANY of the extensions already exist they will be Overwritten?')) {
 				$('#extension_downloader').addClass('loading');
-				var control = $("#import_extensions");
+				
 				$('#import_extensions').attr('disabled', 'disabled').blur();
 				var oData = new FormData(document.forms.namedItem("upload"));
 				var oReq = new XMLHttpRequest();		 
@@ -251,9 +254,10 @@
 				};
 			  oReq.send(oData);
 			  
-		  }
-		});
-		/*---------------------------------------------------------------------------*/
+		  }else{
+			control.replaceWith( control = control.clone( true ) );
+		  }	
+		});		
 	};
 	$(init);
 	
