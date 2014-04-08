@@ -19,24 +19,38 @@
 		public function view() {									
 					$error = [];
 					$uploaddir = MANIFEST . '/tmp/';
+					// looping over REQUEST files to extract urls
 					foreach($_FILES as $file){
+						// on success of uploaded file and move to '/tmp/' 
 						if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name']))){
 							$tmpfile = $uploaddir .$file['name'];								
+							
+							// load xml file 
 							$sxe = simplexml_load_file($tmpfile);
+							
+							// grab first urls extension
 							$extension = $sxe->extension->attributes()['commit'];							
-							$path_parts = pathinfo($extension);							
-							if($path_parts['extension'] == 'xml'){								
+							$path_parts = pathinfo($extension);	
+							
+							// testing to see if first url is an XML file
+							if($path_parts['extension'] == 'xml'){	
+								// performs readextension function to loop over XML files inside, used for multiple bundles
 								$this->readExtension($sxe,$tmpfile);
 							}
 							else{								
+								// if first url isn't an xml file  grab repos from directory
 								$this->readBundle($tmpfile);
 							}							
+							
 							$error[] = false;
 						}
 						else{
+							
 							$error[] = true;							
+							
 						}
-					}							
+					}					
+					// checks if error occured during move to '/tmp/' file and return success when error false
 					if($error[0] == false){						
 						$this->_Result['success'] = true;						
 					}else{
@@ -44,18 +58,39 @@
 					}
 		}
 		public function readExtension($file,$tmpfile){
+			// loops over each url inside multiple bundle file
+			// e.g. 
+			// <bundle>
+			//	<extension commit="https://raw.githubusercontent.com/orchard-studio/orchard-bundle/master/multilingual-bundle.xml"/>
+			//	<extension commit="https://raw.githubusercontent.com/orchard-studio/orchard-bundle/master/symphony-default-bundle.xml"/>
+			// </bundle>
 			foreach($file as $extension){
 				$commit = (string) $extension->attributes()['commit'];
 				$path_parts = pathinfo($commit);				
+				
+				// grabs extension commit attribute value extension and checks on each if it an xml file
 				if($path_parts['extension'] == 'xml'){
+						
 					$this->readBundle($commit);
 				}														
 			}
 		}
 		public function readBundle($dir){
+			// reads the single xml files as and grabs the repos from each of them 
 			$sxe = simplexml_load_file($dir); 
+			// e.g.
+			// <bundle>
+			//	<extension commit="https://github.com/vlad-ghita/page_lhandles"/>
+			//	<extension commit="https://github.com/vlad-ghita/languages"/>
+			//	<extension commit="https://github.com/vlad-ghita/frontend_localisation"/>
+			//	<extension commit="https://github.com/vlad-ghita/multilingual_field"/>
+			//	<extension commit="https://github.com/DeuxHuitHuit/flang_redirection"/>
+			//	<extension commit="https://github.com/symphonists/publish_tabs"/>
+			//	<extension commit="https://github.com/rowan-lewis/textboxfield"/>
+			// </bundle>
 				foreach($sxe as $links){
 					$href = (string) $links->attributes()['commit'];
+					// performs getrepos function that pulls down each repo as a zipball
 					$this->getRepos($href);					
 				}
 		}		
