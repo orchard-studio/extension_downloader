@@ -69,7 +69,21 @@
 						$span = new XMLElement('span','Import/Export Extensions as a Bundle');
 						
 						$ul->appendChild($span);
-						
+						$options = array(
+							array(
+								'integration',
+								false,
+								'Integration'
+							),
+							array(
+								'master',
+								true,
+								'Master'
+							)						
+						);
+						$branch = Widget::Select('branches',$options,array('class'=>'selected_branch'));
+						$branchlabel = new XMLElement('li', 'Choose the branch needed (GIthub Repo)',array('class'=>'branches'));
+						$branchlabel->appendChild($branch);
 						/* Import Bundle */
 						$importinput = Widget::Input('files','','file',array('id'=>'xml_browser'));
 						$importbutton = new XMLElement('li');
@@ -80,7 +94,7 @@
 						$exportbutton = new XMLElement('li');
 						$exportlink = Widget::Anchor('Export', '#', 'Export', 'button', 'export_extensions',null);
 						$exportbutton->appendChild($exportlink);
-						
+						$ul->appendChild($branchlabel);
 						$ul->appendChild($importinput);
 						$ul->appendChild($importbutton);
 						$ul->appendChild($exportbutton);		

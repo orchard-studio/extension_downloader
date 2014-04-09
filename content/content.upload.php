@@ -18,6 +18,8 @@
 		}
 		public function view() {									
 					$error = [];
+					$branch = $_REQUEST['branches'];
+					
 					$uploaddir = MANIFEST . '/tmp/';
 					// looping over REQUEST files to extract urls
 					foreach($_FILES as $file){
@@ -35,11 +37,11 @@
 							// testing to see if first url is an XML file
 							if($path_parts['extension'] == 'xml'){	
 								// performs readextension function to loop over XML files inside, used for multiple bundles
-								$this->readExtension($sxe,$tmpfile);
+								$this->readExtension($sxe,$tmpfile,$branch);
 							}
 							else{								
 								// if first url isn't an xml file  grab repos from directory
-								$this->readBundle($tmpfile);
+								$this->readBundle($tmpfile,$branch);
 							}							
 							
 							$error[] = false;
@@ -57,7 +59,7 @@
 						$this->_Result['error'] = true;						
 					}
 		}
-		public function readExtension($file,$tmpfile){
+		public function readExtension($file,$tmpfile,$branch){
 			// loops over each url inside multiple bundle file
 			// e.g. 
 			// <bundle>
@@ -71,11 +73,11 @@
 				// grabs extension commit attribute value extension and checks on each if it an xml file
 				if($path_parts['extension'] == 'xml'){
 						
-					$this->readBundle($commit);
+					$this->readBundle($commit,$branch);
 				}														
 			}
 		}
-		public function readBundle($dir){
+		public function readBundle($dir,$branch){
 			// reads the single xml files as and grabs the repos from each of them 
 			$sxe = simplexml_load_file($dir); 
 			// e.g.
@@ -91,16 +93,28 @@
 				foreach($sxe as $links){
 					$href = (string) $links->attributes()['commit'];
 					// performs getrepos function that pulls down each repo as a zipball
-					$this->getRepos($href);					
+					$this->getRepos($href,$branch);					
 				}
 		}		
-		private function getRepos($url){	
+		private function getRepos($url,$branch){	
 
 			// Using symphonys gateway curl request methods to retrieve zipballs
 			$gateway = new Gateway();
 			
+			$link = (string) rtrim($url,'/') . '/zipball/'.$branch;
+			$file_headers = @get_headers($link);
+			if($branch == '' && strpos($file_headers[19],500)){
+				$link = (string) rtrim($url,'/') . '/zipball/master';	
+			}
 			// stripping away last ending slash
-			$link = (string) rtrim($url,'/') . '/zipball/master';
+			
+			//$check = (bool) file_get_contents($link);
+			
+			
+			
+				var_dump($file_headers);
+				var_dump($link);
+			die;
 			$gateway->init($link);				
 			$response = @$gateway->exec();
 			

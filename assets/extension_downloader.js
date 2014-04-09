@@ -220,7 +220,11 @@
 			event.preventDefault();
 			$('#xml_browser').click();
 		});
-		
+		$('.selected_branch').change(function(){
+			var selected = $(this).find('option:selected');
+			$('.selected_branch').find('option').removeAttr('selected');
+			selected.attr('selected','selected');
+		});
 		// export selected extensions URLs once button clicked  as formatted xml file
 		$('#export_extensions').on('click',function(event){
 			event.preventDefault();				
@@ -236,12 +240,13 @@
 		// listen to submit of form and post to content.upload.php file
 		// add appropriate actions to ui for loading, and alert and reload upon success of data retrieved
 		$('#upload').on('submit', function(event) {
-			event.preventDefault();		
+			//event.preventDefault();		
 			var control = $("#import_extensions");			
 			if (confirm('If ANY of the extensions already exist they will be Overwritten?')) {
 				$('#extension_downloader').addClass('loading');
 				
 				$('#import_extensions').attr('disabled', 'disabled').blur();
+				var branch = $('.selected_branch option:selected').val();
 				var oData = new FormData(document.forms.namedItem("upload"));
 				var oReq = new XMLHttpRequest();		 
 				oReq.open("POST",UPLOAD_FILE, true);
@@ -252,7 +257,7 @@
 					alert('Download completed! Page will refresh.');
 					document.location = EXTENSIONS_URL + '?a=1';					
 				};
-			  oReq.send(oData);
+			  oReq.send(oData,branch);
 			  
 		  }else{
 			control.replaceWith( control = control.clone( true ) );

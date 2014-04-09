@@ -12,6 +12,9 @@
 	float:right;
 	
 }
+.branches{
+	float:left!important;
+}
 #xml_browse{
 	margin-left:0;
 }
