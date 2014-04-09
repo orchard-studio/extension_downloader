@@ -112,9 +112,6 @@
 			
 			
 			
-				var_dump($file_headers);
-				var_dump($link);
-			die;
 			$gateway->init($link);				
 			$response = @$gateway->exec();
 			
