@@ -13,6 +13,7 @@
 	var EXTENSIONS_URL = SYM_URL + 'system/extensions/';
 	var EXPORT_URL = BASE_URL + 'export/';
 	var UPLOAD_FILE = BASE_URL + 'upload/';
+	var REMOVE_URL = BASE_URL + 'remove/';
 	var COMPATIBLE_ONLY = true;
 	
 	var win = $(window);
@@ -138,7 +139,6 @@
 			input.focus();
 		});
 	};
-	
 	var keyup = function (e) {
 		clearTimeout(searchTimer);
 		if (e.which === 13) {
@@ -196,6 +196,38 @@
 		});
 		return vars;
 	}	 
+	var remove = function(){
+			var arr = [];
+			var name;
+			
+			$('.selected').each(function(){
+				var id = $(this).find('td:nth-child(4)').find('a').attr('href');
+				if($(this).hasClass('inactive')){
+					
+					arr.push(id);
+				}else{
+					var pieces = id.split("/");
+					pieces = pieces[4];
+					alert('Extension ' + pieces+ ' cannot be removed');
+				}
+			});	
+			var t = arr.join(',');
+			var text = {
+				remove : t
+			};
+			if(arr ==''){
+				alert('Please select extensions to remove') 
+			}else{
+				
+				$.post(REMOVE_URL, text, function (data) {			
+					
+						alert('Extensions Removed');
+						document.location = EXTENSIONS_URL;
+					
+					});
+				
+			}
+	}
 	var init = function () {
 		injectUI();
 		win.load(selectExtension);
@@ -236,7 +268,10 @@
 			var text = arr.join(',');
 			arr =='' ? alert('Please select extensions to export') : $('#exportextensions').attr('src',EXPORT_URL +'?a='+text);
 		});
-		
+		$('#remove_extensions').click(function(event){
+			event.preventDefault();
+			remove();
+		});
 		// listen to submit of form and post to content.upload.php file
 		// add appropriate actions to ui for loading, and alert and reload upon success of data retrieved
 		$('#upload').on('submit', function(event) {

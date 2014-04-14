@@ -90,6 +90,10 @@
 						$importlink = Widget::Anchor('Import', '#', 'Import', 'button', 'import_extensions', null);
 						$importbutton->appendChild($importlink);
 
+						/*remove extension from directory*/
+						$removebutton = new XMLElement('li');
+						$remove = Widget::Anchor('Remove','#','Remove','button','remove_extensions',null);
+						$removebutton->appendChild($remove);
 						/* Export Bundle of Extensions as XML */
 						$exportbutton = new XMLElement('li');
 						$exportlink = Widget::Anchor('Export', '#', 'Export', 'button', 'export_extensions',null);
@@ -97,7 +101,9 @@
 						$ul->appendChild($branchlabel);
 						$ul->appendChild($importinput);
 						$ul->appendChild($importbutton);
-						$ul->appendChild($exportbutton);		
+						$ul->appendChild($exportbutton);
+						$ul->appendChild($removebutton);
+						
 						//var_dump($ul);
 						//die;
 						$form->appendChild($ul);
