@@ -1,4 +1,4 @@
 <bundle>
 	<extension commit="https://raw.githubusercontent.com/orchard-studio/orchard-bundle/master/tester-bundle.xml"/>
-	<extension commit="https://raw.githubusercontent.com/orchard-studio/orchard-bundle/master/multilingual-bundle.xml"/>
+	<extension commit="https://raw.githubusercontent.com/orchard-studio/orchard-bundle/master/symphony-default-bundle.xml"/>
 </bundle>

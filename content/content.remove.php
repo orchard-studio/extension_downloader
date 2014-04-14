@@ -11,21 +11,10 @@
 		public function view(){
 			$extensions = $_REQUEST['remove'];
 			$extensions = explode(',', $extensions);
-			
 			foreach($extensions as $extension => $ext){
-				$ext = explode('/',$ext);
-				
-				$url = EXTENSIONS . '/' . $ext[4];
-				
+				$url = EXTENSIONS . '/' . $ext;
 				$bool  = General::deleteDirectory($url);
-				var_dump($bool);
 			}
-			die;
-			
 			$this->_Result['success'] = true;
-			
-			
-
-		}
-		
+		}		
 	}

@@ -202,12 +202,15 @@
 			
 			$('.selected').each(function(){
 				var id = $(this).find('td:nth-child(4)').find('a').attr('href');
+				var label = $(this).find('td:nth-child(1)').find('label');
+				label.remove();
+				var value = $(this).find('td:nth-child(1)').find('input').attr('id');
+				var test = value.toLowerCase().replace(/extension-/g, '');
 				if($(this).hasClass('inactive')){
-					
-					arr.push(id);
+					arr.push(test);
 				}else{
 					var pieces = id.split("/");
-					pieces = pieces[4];
+					pieces = test;//pieces[4];
 					alert('Extension ' + pieces+ ' cannot be removed');
 				}
 			});	
@@ -270,6 +273,7 @@
 		});
 		$('#remove_extensions').click(function(event){
 			event.preventDefault();
+			
 			remove();
 		});
 		// listen to submit of form and post to content.upload.php file
@@ -286,9 +290,16 @@
 				var oReq = new XMLHttpRequest();		 
 				oReq.open("POST",UPLOAD_FILE, true);
 				oReq.onload = function(oEvent) {
+					console.log(this.response);
+					var json = JSON.stringify(eval("(" + this.response + ")"));
+					var js = $.parseJSON(json);
+					
 					$('#extension_downloader').removeClass('loading');
 					$('#import_extensions').removeAttr('disabled');							
 					control.replaceWith( control = control.clone( true ) );
+					if(js.error){
+						alert(js.error + ' and failed to download');
+					}
 					alert('Download completed! Page will refresh.');
 					document.location = EXTENSIONS_URL + '?a=1';					
 				};

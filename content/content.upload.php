@@ -2,6 +2,7 @@
 	ini_set('xdebug.var_display_max_depth', 500);
 	ini_set('xdebug.var_display_max_children', 2048);
 	ini_set('xdebug.var_display_max_data', 28186);
+	ini_set('max_execution_time', 200);
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
 
 	require_once(EXTENSIONS . '/extension_downloader/lib/require.php');
@@ -16,48 +17,56 @@
 		private function getDestinationDirectory() {
 			return EXTENSIONS . '/' . $this->extensionHandle;	
 		}
-		public function view() {									
-					$error = [];
-					$branch = $_REQUEST['branches'];
-					
-					$uploaddir = MANIFEST . '/tmp/';
-					// looping over REQUEST files to extract urls
-					foreach($_FILES as $file){
-						// on success of uploaded file and move to '/tmp/' 
-						if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name']))){
-							$tmpfile = $uploaddir .$file['name'];								
-							
-							// load xml file 
-							$sxe = simplexml_load_file($tmpfile);
-							
-							// grab first urls extension
-							$extension = $sxe->extension->attributes()['commit'];							
-							$path_parts = pathinfo($extension);	
-							
-							// testing to see if first url is an XML file
-							if($path_parts['extension'] == 'xml'){	
-								// performs readextension function to loop over XML files inside, used for multiple bundles
-								$this->readExtension($sxe,$tmpfile,$branch);
+		public function view() {
+				try {
+						$error = [];
+						$branch = $_REQUEST['branches'];
+						
+						$uploaddir = MANIFEST . '/tmp/';
+						// looping over REQUEST files to extract urls
+						foreach($_FILES as $file){
+							// on success of uploaded file and move to '/tmp/' 
+							if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name']))){
+								$tmpfile = $uploaddir .$file['name'];								
+								
+								// load xml file 
+								$sxe = simplexml_load_file($tmpfile);
+								
+								// grab first urls extension
+								$extension = $sxe->extension->attributes()['commit'];							
+								$path_parts = pathinfo($extension);	
+								
+								// testing to see if first url is an XML file
+								if($path_parts['extension'] == 'xml'){	
+									// performs readextension function to loop over XML files inside, used for multiple bundles
+									$this->readExtension($sxe,$tmpfile,$branch);
+								}
+								else{								
+									// if first url isn't an xml file  grab repos from directory
+									$this->readBundle($tmpfile,$branch);
+								}							
+								
+								$error[] = false;
 							}
-							else{								
-								// if first url isn't an xml file  grab repos from directory
-								$this->readBundle($tmpfile,$branch);
-							}							
-							
-							$error[] = false;
-						}
-						else{
-							
-							$error[] = true;							
+							else{
+								
+								$error[] = true;							
+								
+							}
 							
 						}
-					}					
+						if($error[0] == false){						
+							$this->_Result['success'] = true;						
+						}else{
+							$this->_Result['error'] = true;						
+						}
+					}catch (Exception $e) {
+							$this->_Result['empty'] = $this->empty;
+							$this->_Result['success'] = false; 
+							$this->_Result['error'] = $e->getMessage();
+					}				
 					// checks if error occured during move to '/tmp/' file and return success when error false
-					if($error[0] == false){						
-						$this->_Result['success'] = true;						
-					}else{
-						$this->_Result['error'] = true;						
-					}
+					
 		}
 		public function readExtension($file,$tmpfile,$branch){
 			// loops over each url inside multiple bundle file
@@ -103,8 +112,10 @@
 			
 			$link = (string) rtrim($url,'/') . '/zipball/'.$branch;
 			$file_headers = @get_headers($link);
-			if($branch == '' && strpos($file_headers[19],500)){
+			if($branch != '' && strpos($file_headers[19],500)){
 				$link = (string) rtrim($url,'/') . '/zipball/master';	
+			}elseif($branch == ''){
+				$link = (string) rtrim($url,'/') . '/zipball/master';
 			}
 			// stripping away last ending slash
 			
@@ -129,7 +140,7 @@
 			
 			// testing for succession on file write method
 			if (!General::writeFile($tmpFile, $response)) {
-				throw new Exception(__("Could not write file."));
+				throw new Exception(__("Could not write file to %s",array($tmpfile)));
 			}
 			
 			// after file write succesion unzip current zipball using symphonys core ZipArchive class
