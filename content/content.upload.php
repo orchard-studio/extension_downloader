@@ -6,7 +6,7 @@
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
 
 	require_once(EXTENSIONS . '/extension_downloader/lib/require.php');
-	
+	require_once(TOOLKIT . '/class.gateway.php');
 
 	class contentExtensionExtension_DownloaderUpload extends JSONPage {
 		private $forceOverwrite;
@@ -20,7 +20,6 @@
 		public function view() {
 				try {
 						$error = [];
-						$branch = $_REQUEST['branches'];
 						
 						$uploaddir = MANIFEST . '/tmp/';
 						// looping over REQUEST files to extract urls
@@ -39,11 +38,11 @@
 								// testing to see if first url is an XML file
 								if($path_parts['extension'] == 'xml'){	
 									// performs readextension function to loop over XML files inside, used for multiple bundles
-									$this->readExtension($sxe,$tmpfile,$branch);
+									$this->readExtension($sxe,$tmpfile);
 								}
 								else{								
 									// if first url isn't an xml file  grab repos from directory
-									$this->readBundle($tmpfile,$branch);
+									$this->readBundle($tmpfile);
 								}							
 								
 								$error[] = false;
@@ -68,7 +67,7 @@
 					// checks if error occured during move to '/tmp/' file and return success when error false
 					
 		}
-		public function readExtension($file,$tmpfile,$branch){
+		public function readExtension($file,$tmpfile){
 			// loops over each url inside multiple bundle file
 			// e.g. 
 			// <bundle>
@@ -82,11 +81,11 @@
 				// grabs extension commit attribute value extension and checks on each if it an xml file
 				if($path_parts['extension'] == 'xml'){
 						
-					$this->readBundle($commit,$branch);
+					$this->readBundle($commit);
 				}														
 			}
 		}
-		public function readBundle($dir,$branch){
+		public function readBundle($dir){
 			// reads the single xml files as and grabs the repos from each of them 
 			$sxe = simplexml_load_file($dir); 
 			// e.g.
@@ -102,25 +101,21 @@
 				foreach($sxe as $links){
 					$href = (string) $links->attributes()['commit'];
 					// performs getrepos function that pulls down each repo as a zipball
-					$this->getRepos($href,$branch);					
+					$this->getRepos($href);					
 				}
 		}		
-		private function getRepos($url,$branch){	
+		private function getRepos($url){	
 
 			// Using symphonys gateway curl request methods to retrieve zipballs
 			$gateway = new Gateway();
 			
-			$link = (string) rtrim($url,'/') . '/zipball/'.$branch;
+			$link = (string) rtrim($url,'/') . '/zipball/integration';
 			$file_headers = @get_headers($link);
-			if($branch != '' && strpos($file_headers[19],500)){
+			
+			if(!strpos($file_headers[19],200)){
 				$link = (string) rtrim($url,'/') . '/zipball/master';	
-			}elseif($branch == ''){
-				$link = (string) rtrim($url,'/') . '/zipball/master';
 			}
 			// stripping away last ending slash
-			
-			//$check = (bool) file_get_contents($link);
-			
 			
 			
 			$gateway->init($link);				
@@ -129,9 +124,9 @@
 			// grabbing the filehandle from the url
 			$parts = explode('/', $link);			
 			$handle = $parts[4];			
-			$this->extensionHandle = $handle;			
+			$this->extensionHandle = $handle;
+			$tmpFile = MANIFEST . '/tmp/' . Lang::createHandle($this->extensionHandle);
 			
-			$tmpFile = MANIFEST . '/tmp/' . Lang::createHandle($this->extensionHandle);			
 			
 			// testing for no response from url		
 			if (!$response) {
@@ -149,8 +144,10 @@
 			// testing for succesion on open function , once open remove file from tmp directory			
 			if (!$zip->open($tmpFile)) {
 				General::deleteFile($tmpFile, true); 
-				throw new Exception(__("Could not open downloaded file."));
+				throw new Exception(__("Could not open downloaded file. -- ".$tmpfile));
 			}
+			
+			
 			
 			// grab directory name from zip archive, and extract to EXTENSIONS directory
 			$dirname = $zip->getNameIndex(0);
@@ -164,7 +161,7 @@
 			
 			// throw exception if delete method fails
 			if (!General::deleteDirectory($toDir)) {
-				throw new Exception(__('Could not delete %s', array($toDir)));
+				throw new Exception(__('Could not delete %s', array($curDir)));
 			}
 			if (!@rename($curDir, $toDir)) {
 				throw new Exception(__('Could not rename %s to %s', array($curDir, $toDir)));
