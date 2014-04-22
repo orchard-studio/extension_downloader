@@ -127,7 +127,7 @@
 				}else{
 					$link = (string) rtrim($url,'/') . '/zipball/master';
 				}	
-				var_dump($link);
+				
 			}
 			// stripping away last ending slash
 			
