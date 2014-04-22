@@ -114,20 +114,20 @@
 			
 			if(!strpos($file_headers[19],200)){
 				$link = explode('/',$link);
-				
-				if(isset($link[6])){					
-					$http = $link[0];					
-					$domain = $link[2];
-					$user = $link[3];
-					$repo = $link[4];
-					$branch = $link[6];
-					unset($link);
-					$url = $http.'//'.$domain.'/'.$user.'/'.$repo.'/zipball/'.$branch;											
-					$link = (string) rtrim($url,'/');
-				}else{
-					$link = (string) rtrim($url,'/') . '/zipball/master';
-				}	
-				
+				if($link[4] != 'extension_downloader'){
+					if(isset($link[6])){					
+						$http = $link[0];					
+						$domain = $link[2];
+						$user = $link[3];
+						$repo = $link[4];
+						$branch = $link[6];
+						unset($link);
+						$url = $http.'//'.$domain.'/'.$user.'/'.$repo.'/zipball/'.$branch;											
+						$link = (string) rtrim($url,'/');
+					}else{
+						$link = (string) rtrim($url,'/') . '/zipball/master';
+					}	
+				}
 			}
 			// stripping away last ending slash
 			
