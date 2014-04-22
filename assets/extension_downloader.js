@@ -64,11 +64,14 @@
 	var httpError = function (e) {
 		alert('HTTP error');
 	};
+	//Symphony.Utilities.getXSRF(true);
+	
 	
 	var search = function () {
 		var data = {
 			q: input.val(),
-			compatible: !COMPATIBLE_ONLY
+			compatible: !COMPATIBLE_ONLY,
+			xsrf : Symphony.Utilities.getXSRF()
 		};
 		
 		if (!data.q) {
@@ -112,7 +115,8 @@
 	var download = function (force) {
 		var data = {
 			q: input.val(),
-			force: force
+			force: force,
+			xsrf : Symphony.Utilities.getXSRF()			
 		};
 		
 		if (!data.q) {
@@ -216,7 +220,8 @@
 			});	
 			var t = arr.join(',');
 			var text = {
-				remove : t
+				remove : t,
+				xsrf : Symphony.Utilities.getXSRF()
 			};
 			if(arr ==''){
 				alert('Please select extensions to remove') 

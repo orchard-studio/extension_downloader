@@ -63,6 +63,7 @@
 						$form->setAttribute('ENCTYPE','multipart/form-data');
 						$form->setAttribute('class','wrapped-form');
 						$form->setAttribute('id','upload');
+						$form->setAttribute('role','form');
 						$ul = new XMLElement('ul');
 						$ul->setAttribute('class','actions');
 
