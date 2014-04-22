@@ -115,12 +115,14 @@
 			if(!strpos($file_headers[19],200)){
 				$link = explode('/',$link);
 				if($link[4] != 'extension_downloader'){
+						
 						$http = $link[0];					
 						$domain = $link[2];
 						$user = $link[3];
 						$repo = $link[4];
 						$tree = $link[5];
 						$branch = $link[6];
+						
 						unset($link);
 					if(isset($branch)){						
 						$url = $http.'//'.$domain.'/'.$user.'/'.$repo.'/zipball/'.$branch;											
