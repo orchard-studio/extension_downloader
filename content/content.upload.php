@@ -115,19 +115,26 @@
 			if(!strpos($file_headers[19],200)){
 				$link = explode('/',$link);
 				if($link[4] != 'extension_downloader'){
-					if(isset($link[6])){					
 						$http = $link[0];					
 						$domain = $link[2];
 						$user = $link[3];
 						$repo = $link[4];
+						$tree = $link[5];
 						$branch = $link[6];
 						unset($link);
+					if(isset($branch)){						
 						$url = $http.'//'.$domain.'/'.$user.'/'.$repo.'/zipball/'.$branch;											
+						$link = (string) rtrim($url,'/');
+					}elseif(isset($tree)){
+						$url = $http.'//'.$domain.'/'.$user.'/'.$repo.'/zipball/master';	
 						$link = (string) rtrim($url,'/');
 					}else{
 						$link = (string) rtrim($url,'/') . '/zipball/master';
-					}	
+					}
+				}else{
+					throw new Exception(__("Cannot download extension downloader as part of the bundle "));
 				}
+				
 			}
 			// stripping away last ending slash
 			

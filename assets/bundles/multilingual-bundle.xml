@@ -1,6 +1,6 @@
 <bundle>
-	<extension commit="https://github.com/vlad-ghita/page_lhandles"/>
-	<extension commit="https://github.com/vlad-ghita/languages"/>
+	<extension commit="https://github.com/vlad-ghita/page_lhandles/tree"/>
+	<extension commit="https://github.com/vlad-ghita/languages/tree/master"/>
 	<extension commit="https://github.com/vlad-ghita/frontend_localisation"/>
 	<extension commit="https://github.com/vlad-ghita/multilingual_field"/>
 	<extension commit="https://github.com/DeuxHuitHuit/flang_redirection"/>
