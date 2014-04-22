@@ -109,11 +109,25 @@
 			// Using symphonys gateway curl request methods to retrieve zipballs
 			$gateway = new Gateway();
 			
-			$link = (string) rtrim($url,'/') . '/zipball/integration';
+			$link = (string) rtrim($url,'/');
 			$file_headers = @get_headers($link);
 			
 			if(!strpos($file_headers[19],200)){
-				$link = (string) rtrim($url,'/') . '/zipball/master';	
+				$link = explode('/',$link);
+				
+				if(isset($link[6])){					
+					$http = $link[0];					
+					$domain = $link[2];
+					$user = $link[3];
+					$repo = $link[4];
+					$branch = $link[6];
+					unset($link);
+					$url = $http.'//'.$domain.'/'.$user.'/'.$repo.'/zipball/'.$branch;											
+					$link = (string) rtrim($url,'/');
+				}else{
+					$link = (string) rtrim($url,'/') . '/zipball/master';
+				}	
+				var_dump($link);
 			}
 			// stripping away last ending slash
 			

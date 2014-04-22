@@ -1,8 +1,8 @@
 <bundle>
 	<extension commit="https://github.com/symphonycms/debugdevkit"/>
 	<extension commit="https://github.com/symphonycms/export_ensemble"/>
-	<extension commit="https://github.com/orchard-studio/jit_image_manipulation"/>
-	<extension commit="https://github.com/symphonycms/maintenance_mode"/>
+	<extension commit="https://github.com/orchard-studio/jit_image_manipulation/tree/integration"/>
+	<extension commit="https://github.com/symphonycms/maintenance_mode/tree"/>
 	<extension commit="https://github.com/symphonycms/markdown"/>
 	<extension commit="https://github.com/symphonycms/profiledevkit"/>
 	<extension commit="https://github.com/symphonycms/selectbox_link_field"/>

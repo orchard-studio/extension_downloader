@@ -279,7 +279,7 @@
 		// listen to submit of form and post to content.upload.php file
 		// add appropriate actions to ui for loading, and alert and reload upon success of data retrieved
 		$('#upload').on('submit', function(event) {
-			event.preventDefault();		
+			//event.preventDefault();		
 			var control = $("#import_extensions");			
 			if (confirm('If ANY of the extensions already exist they will be Overwritten?')) {
 				$('#extension_downloader').addClass('loading');
