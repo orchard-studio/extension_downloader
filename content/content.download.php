@@ -53,23 +53,52 @@
 			$query = General::sanitize($_REQUEST['q']);
 
 			$this->forceOverwrite = (isset($_REQUEST['force']) && General::sanitize($_REQUEST['force']) == 'true');
-
+			
 			if (empty($query)) {
 				throw new Exception(__('Query cannot be empty'));
 			} else if (strpos($query, 'zipball') !== FALSE || strpos($query, '.zip') !== FALSE) {
 				// full url
 				$this->downloadUrl = $query;
 				$this->extensionHandle = self::handleFromPath($query);
+			
+				
 			} else if (strpos($query, '/') !== FALSE) {
-				$this->extensionHandle = self::handleFromPath($query);
-				$this->downloadUrl = "https://github.com/$query/zipball/master";
+				$branch = explode('/',$query);				
+				if(array_key_exists(6,$branch) && $branch[6] !=''){	
+				
+					$this->extensionHandle = self::handleFromPath($branch[4]);
+					$query = str_replace('tree','zipball',$query);
+					$this->downloadUrl = $query;
+					
+				} else if (array_key_exists(5,$branch) && $branch[5] !='') {
+				
+					$this->extensionHandle = self::handleFromPath($branch[4]);
+					$query = str_replace('tree','zipball',$query);
+					$this->downloadUrl = rtrim($query,'/')."/master";
+				
+				} else if(array_key_exists(4,$branch) && $branch[4] !='') {
+				
+					$this->extensionHandle = self::handleFromPath($branch[4]);				
+					$this->downloadUrl = rtrim($query,'/')."/zipball/master";					
+				
+				} else if(array_key_exists(3,$branch) && $branch[3] !='') {
+				
+					throw new Exception(__('Please Specify a correct github url  "http://github.com/ :user / :repo / tree / :branchname /" '));
+					
+				} else {
+					
+					$this->extensionHandle = self::handleFromPath($query);
+					$this->downloadUrl = "https://github.com/$query/zipball/master";
+					
+				}
+				
 			} else {
 				// do a search for this handle
 				$this->searchExtension($query);
 			}
-
+			//$this->alreadyExists = file_exists($this->getDestinationDirectory());
 			// check if directory exists
-			$this->alreadyExists = file_exists($this->getDestinationDirectory());
+			
 
 			if (!$this->forceOverwrite && $this->alreadyExists) {
 				throw new Exception(__('Extension %s already exists', array($this->extensionHandle)));
