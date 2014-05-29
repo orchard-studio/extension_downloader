@@ -132,7 +132,7 @@
 						$link = (string) rtrim($url,'/');
 					}else{
 						$url = $http.'//'.$domain.'/'.$user.'/'.$repo.'/zipball/master';
-						$link = (string) rtrim($url,'/');	
+						$link = (string) rtrim($url,'/');						
 					}
 				}else{
 					throw new Exception(__("Cannot download extension downloader as part of the bundle "));
