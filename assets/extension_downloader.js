@@ -203,7 +203,7 @@
 	var remove = function(){
 			var arr = [];
 			var name;
-			
+			var check = 0;
 			$('.selected').each(function(){
 				var id = $(this).find('td:nth-child(4)').find('a').attr('href');
 				var label = $(this).find('td:nth-child(1)').find('label');
@@ -215,7 +215,8 @@
 				}else{
 					var pieces = id.split("/");
 					pieces = test;//pieces[4];
-					alert('Extension ' + pieces+ ' cannot be removed');
+					check = 1;
+					alert('Currently in use');
 				}
 			});	
 			var t = arr.join(',');
@@ -224,7 +225,9 @@
 				xsrf : Symphony.Utilities.getXSRF()
 			};
 			if(arr ==''){
-				alert('Please select extensions to remove') 
+				if(check == 0){
+					alert('Please select extensions to remove');				
+				}
 			}else{
 				
 				$.post(REMOVE_URL, text, function (data) {			
