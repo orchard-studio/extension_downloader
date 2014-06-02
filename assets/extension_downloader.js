@@ -22,7 +22,7 @@
 	var wrap;
 	var input;
 	var results;
-	
+	var check;
 	var searchTimer = 0;
 	
 	var queryStringParser = (function () {
@@ -67,10 +67,11 @@
 	//Symphony.Utilities.getXSRF(true);
 	
 	
-	var search = function () {
+	var search = function () {	
 		var data = {
 			q: input.val(),
 			compatible: !COMPATIBLE_ONLY,
+			c : check.attr('checked'),
 			xsrf : Symphony.Utilities.getXSRF()
 		};
 		
@@ -89,18 +90,37 @@
 			if (data.success && data.results) {
 				results.empty();
 				if (!!data.results.length) {
+										
 					$.each(data.results, function (i, r) {
 						var a = $('<a />')
 							.attr('href','#')
 							.attr('data-handle', r.handle);
+						
 						var name = createSpan('name', r.name);
 						var version = createSpan('version', r.version);
 						var status = createSpan('status', r.status + (r.compatible ? '' : ' (n/a)'));
 						var dev = createSpan('dev', r.by);
-						
 						a.append(name).append(version).append(status).append(dev);
 						
 						temp = temp.add(a);
+						if(r.branches !== 'master'){
+							
+							var ul = $('<ul></ul>');							
+							var branches = r.branches.split(',');
+							$.each(branches,function(ind,res){
+								var li = $('<li></li>');
+								var b = $('<a/>')
+									.attr('href','#')
+									.attr('data-handle','https://github.com/'+r.by+'/'+r.name+'/tree/'+res)
+									.text(res);
+									li.append(b);
+									ul.append(li);
+							});
+							
+							temp = temp.add(ul);
+						}
+						
+						
 					});
 					results.append(temp);
 				}
@@ -173,13 +193,23 @@
 				.attr('type', 'text')
 				.attr('placeholder',
 				'zipball url, github-user/repo, extension_handle or keywords');
+		check = $('<input />').attr('type', 'checkbox').attr('name','check').attr('id','search-github');				
+		var label = $('<label></label>').text('Search Github');
+		label.append(check);
 		results = $('<div />').attr('id', 'extension_downloader_results');
-		wrap.append(title).append(input).append(results);
+		wrap.append(title).append(input).append(label).append(results);
 		context.append(wrap);
 		input.keyup(keyup);
+		check.on('click',checked);
 		results.on('click', 'a', resultClick);
 	};
-
+	var checked = function(){
+		if($(this).attr('checked') == 'checked'){
+			$(this).removeAttr('checked');
+		}else{
+			$(this).attr('checked','checked');		
+		}
+	}
 	var selectExtension = function () {
 		var qs = queryStringParser.parse();
 		if (!!qs.download_handle) {

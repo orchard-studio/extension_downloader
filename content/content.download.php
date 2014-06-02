@@ -83,7 +83,7 @@
 				
 				} else if(array_key_exists(3,$branch) && $branch[3] !='') {
 				
-					throw new Exception(__('Please Specify a correct github url  "http://github.com/ :user / :repo / tree / :branchname /" '));
+					throw new Exception(__('Please Specify a valid github url  "http://github.com/ :user / :repo / tree / :branchname /" '));
 					
 				} else {
 					
@@ -94,12 +94,14 @@
 				
 			} else {
 				// do a search for this handle
+				
 				$this->searchExtension($query);
+				
 			}
 			//$this->alreadyExists = file_exists($this->getDestinationDirectory());
 			// check if directory exists
 			
-
+			
 			if (!$this->forceOverwrite && $this->alreadyExists) {
 				throw new Exception(__('Extension %s already exists', array($this->extensionHandle)));
 			}
@@ -157,50 +159,51 @@
 				throw new Exception(__('Could not rename %s to %s', array($curDir, $toDir)));
 			}
 		}
-
+		private function getBranches($url){
+			$gateway = new Gateway();
+			$gateway->init($url);			
+			$response = @$gateway->exec();
+			return $response;
+		}
 		private function searchExtension($query) {
 			$url = "http://symphonyextensions.com/api/extensions/$query/";
-
+	
 			// create the Gateway object
-			$gateway = new Gateway();
+			$response = $this->getBranches($url);
+		
+					
+				if (!$response) {
+					throw new Exception(__("Could not read from %s", array($url)));
+				}
 
-			// set our url
-			$gateway->init($url);
+				// parse xml
+				$xml = @simplexml_load_string($response);
 
-			// get the raw response, ignore errors
-			$response = @$gateway->exec();
+				if (!$xml) {
+					throw new Exception(__("Could not parse xml from %s", array($url)));
+				}
 
-			if (!$response) {
-				throw new Exception(__("Could not read from %s", array($url)));
-			}
+				$extension = $xml->xpath('/response/extension');
 
-			// parse xml
-			$xml = @simplexml_load_string($response);
+				if (empty($extension)) {
+					throw new Exception(__("Could not find extension %s", array($query)));
+				}
 
-			if (!$xml) {
-				throw new Exception(__("Could not parse xml from %s", array($url)));
-			}
+				$this->extensionHandle = $xml->xpath('/response/extension/@id');
 
-			$extension = $xml->xpath('/response/extension');
+				if (empty($this->extensionHandle)) {
+					throw new Exception(__("Could not find extension handle"));
+				} else {
+					$this->extensionHandle = (string)$this->extensionHandle[0];
+				}
 
-			if (empty($extension)) {
-				throw new Exception(__("Could not find extension %s", array($query)));
-			}
+				$this->downloadUrl = $xml->xpath("/response/extension/link[@rel='github:zip']/@href");
 
-			$this->extensionHandle = $xml->xpath('/response/extension/@id');
-
-			if (empty($this->extensionHandle)) {
-				throw new Exception(__("Could not find extension handle"));
-			} else {
-				$this->extensionHandle = (string)$this->extensionHandle[0];
-			}
-
-			$this->downloadUrl = $xml->xpath("/response/extension/link[@rel='github:zip']/@href");
-
-			if (empty($this->downloadUrl)) {
-				throw new Exception(__("Could not find extension handle"));
-			} else {
-				$this->downloadUrl = (string)$this->downloadUrl[0];
-			}
+				if (empty($this->downloadUrl)) {
+					throw new Exception(__("Could not find extension handle"));
+				} else {
+					$this->downloadUrl = (string)$this->downloadUrl[0];
+				}
+			
 		}
 	}

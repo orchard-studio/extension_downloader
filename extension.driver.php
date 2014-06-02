@@ -40,6 +40,16 @@
 					'page'=> '/backend/',
 					'delegate' => 'AdminPagePreGenerate',
 					'callback' => 'listBundles'
+				),
+				array(
+					'page'=> '/system/preferences/',
+					'delegate' => 'AddCustomPreferenceFieldsets',
+					'callback' => 'addPreferences'
+				),
+				array(
+					'page'=> '/system/preferences/',
+					'delegate' => 'save',
+					'callback' => 'savePreferences'
 				)
 			);
 		}
@@ -104,7 +114,39 @@
 					
 				return $children;
 		}
+		public function addpreferences(array $context){
+			$fieldset = new XMLElement('fieldset');
+			$fieldset->setAttribute('class', 'settings');
+			$fieldset->appendChild(new XMLElement('legend', __('Extension Downloader')));
+			$fieldset->appendChild(
+				new XMLElement('p', __('Provide your github details'), array('class' => 'help'))
+			);
 
+			$div = new XMLElement('div');			
+			$label = new XMLElement('label', __('Username'));
+			$label2 = new XMLElement('label', __('Token'));
+			// Get the Sections that contain a Member field.
+			
+			$githubusername = Symphony::Configuration()->get('extension-downloader')['github-user'];
+			$githubauthtoken = Symphony::Configuration()->get('extension-downloader')['github-token'];			
+			if($githubauthtoken != ''){
+				$token = $githubauthtoken;
+				$user = $githubusername;
+			}else{
+				$token  ='';
+				$user = '';
+			}
+			$tokenfield = Widget::Input('settings[extension-downloader][github-token]',$token,'text');
+			$userfield = Widget::Input('settings[extension-downloader][github-user]',$user,'text');
+			$label->appendChild($userfield);
+			$label2->appendChild($tokenfield);
+			$div->appendChild($label);
+			$div->appendChild($label2);
+	
+			$fieldset->appendChild($div);
+
+			$context['wrapper']->appendChild($fieldset);
+		}
 		public function appendAssets(array $context) {
 			// store de callback array localy
 			$c = Administration::instance()->getPageCallback();
@@ -127,7 +169,9 @@
 				return;
 			}
 		}
-
+		public function savePreferences(array $context){
+			
+		}
 		/* ********* INSTALL/UPDATE/UNISTALL ******* */
 
 		/**

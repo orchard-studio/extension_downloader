@@ -12,6 +12,19 @@
 	float:right;
 	
 }
+#extension_downloader input[type=text]{
+	margin-right:50px;
+	width:88%;
+	float:left;
+}
+#extension_downloader label{
+	float:left;
+	margin-top:6px;
+}
+#extension_downloader label input{
+	float:left;
+	margin-right:6px;
+}
 .branches{
 	float:left!important;
 }
