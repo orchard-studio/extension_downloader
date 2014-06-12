@@ -3,7 +3,10 @@
 	Copyight: Deux Huit Huit 2014
 	LICENCE: MIT http://deuxhuithuit.mit-license.org;
 	*/
-
+	ini_set('xdebug.var_display_max_depth', 500);
+	ini_set('xdebug.var_display_max_children', 2048);
+	ini_set('xdebug.var_display_max_data', 28186);
+	ini_set('max_execution_time', 200);
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
 
 	require_once(EXTENSIONS . '/extension_downloader/lib/require.php');
@@ -48,7 +51,20 @@
 			$parts = explode('.', $handle);
 			return $parts[count($parts)-1];
 		}
-
+		private function getBranches($url,$token=false){
+			
+			$gateway = new Gateway();
+			$check = $gateway->isCurlAvailable();
+						
+			if ($check == false) {
+				throw new Exception(__('Unable to perform your request. please contact your administrator (error type : Curl Not enabled)'));
+			}
+			$gateway->init($url);
+			
+			$response = @$gateway->exec();
+			return $response;
+		}
+		
 		private function parseInput() {
 			$query = General::sanitize($_REQUEST['q']);
 
@@ -63,7 +79,8 @@
 			
 				
 			} else if (strpos($query, '/') !== FALSE) {
-				$branch = explode('/',$query);				
+				$branch = explode('/',$query);		
+				
 				if(array_key_exists(6,$branch) && $branch[6] !=''){	
 				
 					$this->extensionHandle = self::handleFromPath($branch[4]);
@@ -88,35 +105,30 @@
 				} else {
 					
 					$this->extensionHandle = self::handleFromPath($query);
-					$this->downloadUrl = "https://github.com/$query/zipball/master";
+					$this->downloadUrl = "https://github.com/".$query."/zipball/master";
 					
 				}
 				
 			} else {
 				// do a search for this handle
-				
+				//$this->extensionHandle = self::handleFromPath($query);
+				//$this->downloadUrl = "https://github.com/".$query."/zipball/master";
 				$this->searchExtension($query);
 				
 			}
+			
 			//$this->alreadyExists = file_exists($this->getDestinationDirectory());
 			// check if directory exists
-			
 			
 			if (!$this->forceOverwrite && $this->alreadyExists) {
 				throw new Exception(__('Extension %s already exists', array($this->extensionHandle)));
 			}
 		}
-
+		
 		private function download() {
-			// create the Gateway object
-			$gateway = new Gateway();
-
-			// set our url
-			$gateway->init($this->downloadUrl);
-
-			// get the raw response, ignore errors
-			$response = @$gateway->exec();
-
+			
+			$response = self::getBranches($this->downloadUrl);		
+			
 			if (!$response) {
 				throw new Exception(__("Could not read from %s", array($this->downloadUrl)));
 			}
@@ -159,17 +171,12 @@
 				throw new Exception(__('Could not rename %s to %s', array($curDir, $toDir)));
 			}
 		}
-		private function getBranches($url){
-			$gateway = new Gateway();
-			$gateway->init($url);			
-			$response = @$gateway->exec();
-			return $response;
-		}
+		
 		private function searchExtension($query) {
 			$url = "http://symphonyextensions.com/api/extensions/$query/";
 	
 			// create the Gateway object
-			$response = $this->getBranches($url);
+			$response = self::getBranches($url);		
 		
 					
 				if (!$response) {

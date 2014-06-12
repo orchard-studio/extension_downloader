@@ -126,9 +126,19 @@
 			$label = new XMLElement('label', __('Username'));
 			$label2 = new XMLElement('label', __('Token'));
 			// Get the Sections that contain a Member field.
-			
-			$githubusername = Symphony::Configuration()->get('extension-downloader')['github-user'];
-			$githubauthtoken = Symphony::Configuration()->get('extension-downloader')['github-token'];			
+						
+			if(Symphony::Configuration()->get('github-user','extension-downloader')){
+				$githubusername = Symphony::Configuration()->get('github-user','extension-downloader');
+				
+			}else{
+				$githubusername = '';
+			}			
+			if(Symphony::Configuration()->get('github-token','extension-downloader')){
+				$githubauthtoken = Symphony::Configuration()->get('github-token','extension-downloader');
+			}
+			else{
+				$githubauthtoken = '';
+			}
 			if($githubauthtoken != ''){
 				$token = $githubauthtoken;
 				$user = $githubusername;

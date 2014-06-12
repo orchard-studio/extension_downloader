@@ -19,7 +19,7 @@
 		}
 		public function view() {
 				try {
-						$error = [];
+						$error = array();
 						
 						$uploaddir = MANIFEST . '/tmp/';
 						// looping over REQUEST files to extract urls
@@ -32,7 +32,8 @@
 								$sxe = simplexml_load_file($tmpfile);
 								
 								// grab first urls extension
-								$extension = $sxe->extension->attributes()['commit'];							
+								
+								$extension = $sxe->extension->attributes('commit');							
 								$path_parts = pathinfo($extension);	
 								
 								// testing to see if first url is an XML file
@@ -75,7 +76,7 @@
 			//	<extension commit="https://raw.githubusercontent.com/orchard-studio/orchard-bundle/master/symphony-default-bundle.xml"/>
 			// </bundle>
 			foreach($file as $extension){
-				$commit = (string) $extension->attributes()['commit'];
+				$commit = (string) $extension->attributes('commit');
 				$path_parts = pathinfo($commit);				
 				
 				// grabs extension commit attribute value extension and checks on each if it an xml file
@@ -99,7 +100,7 @@
 			//	<extension commit="https://github.com/rowan-lewis/textboxfield"/>
 			// </bundle>
 				foreach($sxe as $links){
-					$href = (string) $links->attributes()['commit'];
+					$href = (string) $links->attributes('commit');
 					// performs getrepos function that pulls down each repo as a zipball
 					$this->getRepos($href);					
 				}
@@ -114,6 +115,7 @@
 			
 			if(!strpos($file_headers[19],200)){
 				$link = explode('/',$link);
+				var_dump($link);
 				if($link[4] != 'extension_downloader'){
 						
 						$http = $link[0];					

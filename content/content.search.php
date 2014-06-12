@@ -6,6 +6,7 @@
 	ini_set('xdebug.var_display_max_depth', 5);
 		ini_set('xdebug.var_display_max_children', 100000);
 		ini_set('xdebug.var_display_max_data', 80000);
+		ini_set('max_execution_time', 200);
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
 
 	require_once(EXTENSIONS . '/extension_downloader/lib/require.php');
@@ -55,6 +56,12 @@
 		private function getBranches($url,$token=false){
 			$gateway = new Gateway();
 			$gateway->init($url);
+			$check = $gateway::isCurlAvailable();
+			//echo phpinfo();
+			
+			if ($check == false) {
+				throw new Exception(__('Unable to perform your request. please contact your administrator (error type : Curl Not enabled)'));
+			}
 			if($token != false){				
 				$gateway->setopt(CURLOPT_HTTPHEADER,array('Authorization: token '.$token.''));
 			}
@@ -63,10 +70,11 @@
 		}
 		
 		
-		private function github(){
+		private function github($extras = '' ,$url ='',$response = ''){
 				$results = array();
-				$githubusername = Symphony::Configuration()->get('extension-downloader')['github-user'];
-				$githubauthtoken = Symphony::Configuration()->get('extension-downloader')['github-token'];	
+				$githubusername = Symphony::Configuration()->get('github-user','extension-downloader');
+				$githubauthtoken = Symphony::Configuration()->get('github-token','extension-downloader');	
+				
 				if ($githubusername == ''){
 					throw new Exception(__("Please set your Github username"));
 				}
@@ -74,9 +82,11 @@
 					throw new Exception(__("Please set your Github Auth Token"));
 				}
 				$query = Lang::createHandle(str_replace(' ','+',$this->query));
-				$url = 'https://api.github.com/search/repositories?q='.$query.'+symphony+cms+Symphony+CMS';	
+				$url = 'https://api.github.com/search/repositories?q='.$query.'+'.$extras;	
 				$response = $this->getBranches($url,$githubauthtoken);
+				
 				$json = json_decode($response);
+				
 				// parse xml
 				
 				if (!$json) {
